@@ -1,0 +1,203 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-gray-200 dark:border-gray-800;
+  }
+  body {
+    @apply bg-white text-gray-900 dark:bg-dark-950 dark:text-gray-100;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary-950 text-white px-6 py-3 rounded-lg font-medium
+      transition-all duration-300 ease-out
+      hover:bg-primary-800 hover:shadow-lg hover:shadow-primary-950/20 hover:-translate-y-0.5
+      active:translate-y-0 active:shadow-md
+      dark:bg-white dark:text-dark-950 dark:hover:bg-gray-200
+      disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none;
+  }
+  .btn-secondary {
+    @apply border border-primary-950 text-primary-950 px-6 py-3 rounded-lg font-medium
+      transition-all duration-300 ease-out
+      hover:bg-primary-950 hover:text-white hover:shadow-lg hover:-translate-y-0.5
+      active:translate-y-0
+      dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-dark-950;
+  }
+  .input-field {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg
+      focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
+      dark:bg-dark-900 dark:border-gray-700 dark:text-white
+      transition-all duration-200
+      hover:border-gray-400 dark:hover:border-gray-600;
+  }
+  .card {
+    @apply bg-white dark:bg-dark-900 rounded-2xl overflow-hidden
+      shadow-sm hover:shadow-xl hover:shadow-gray-200/50 dark:hover:shadow-dark-950/50
+      transition-all duration-500 ease-out
+      hover:-translate-y-1;
+  }
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  .skeleton {
+    @apply animate-pulse bg-gray-200 dark:bg-dark-800 rounded;
+  }
+}
+
+/* ========== Animations ========== */
+
+/* Fade In */
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out both;
+}
+
+/* Slide Up */
+.animate-slide-up {
+  animation: slideUp 0.6s ease-out both;
+}
+
+/* Slide Down */
+.animate-slide-down {
+  animation: slideDown 0.3s ease-out both;
+}
+
+/* Scale In */
+.animate-scale-in {
+  animation: scaleIn 0.4s ease-out both;
+}
+
+/* Stagger children */
+.stagger-children > * {
+  animation: slideUp 0.5s ease-out both;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 80ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 160ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 240ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 320ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 400ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 480ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 560ms; }
+
+/* Hover lift */
+.hover-lift {
+  @apply transition-all duration-300 ease-out;
+}
+.hover-lift:hover {
+  @apply -translate-y-2 shadow-xl;
+}
+
+/* Pulse glow */
+.pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+/* Shimmer */
+.shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Page transitions */
+.page-enter {
+  animation: pageEnter 0.4s ease-out both;
+}
+
+/* Button ripple */
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+.btn-ripple::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.3) 0%, transparent 70%);
+  opacity: 0;
+  transform: scale(0);
+  transition: opacity 0.4s, transform 0.4s;
+}
+.btn-ripple:active::after {
+  opacity: 1;
+  transform: scale(2.5);
+  transition: 0s;
+}
+
+/* Navbar link underline */
+.nav-link {
+  @apply relative;
+}
+.nav-link::after {
+  content: '';
+  @apply absolute bottom-0 left-0 w-0 h-0.5 bg-primary-950 dark:bg-white transition-all duration-300;
+}
+.nav-link:hover::after {
+  @apply w-full;
+}
+
+/* Image zoom */
+.img-zoom {
+  @apply transition-transform duration-700 ease-out;
+}
+.img-zoom:hover {
+  @apply scale-110;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(42, 37, 32, 0.2); }
+  50% { box-shadow: 0 0 20px 5px rgba(42, 37, 32, 0.1); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-dark-900;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-dark-700 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400 dark:bg-dark-600;
+}

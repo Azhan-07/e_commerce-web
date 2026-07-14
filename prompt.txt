@@ -1,0 +1,496 @@
+You are an expert Senior Full Stack Software Engineer and UI/UX Designer.
+
+Your task is to build a COMPLETE MVP (Minimum Viable Product) for a modern Clothing E-Commerce Website.
+
+The project must be production-ready, scalable, responsive, and follow clean architecture.
+
+=========================================
+TECH STACK
+=========================================
+
+Frontend
+- React.js
+- Vite
+- Tailwind CSS
+- React Router
+- Axios
+
+Backend
+- Node.js
+- Express.js
+
+Database
+- MongoDB
+- Mongoose
+
+Authentication
+- JWT Authentication
+- bcrypt password hashing
+
+Storage
+- Store product images locally inside uploads folder
+- Serve images through Express
+
+=========================================
+PROJECT STRUCTURE
+=========================================
+
+client/
+
+server/
+
+README.md
+
+=========================================
+DATABASE MODELS
+=========================================
+
+User
+
+- _id
+- fullname
+- email
+- password
+- role
+- createdAt
+
+Product
+
+- _id
+- title
+- description
+- price
+- discount
+- category
+- gender
+- sizes
+- colors
+- stock
+- images
+- featured
+- rating
+- createdAt
+
+Cart
+
+- userId
+- products[]
+- total
+
+Order
+
+- userId
+- products[]
+- shippingAddress
+- totalPrice
+- paymentStatus
+- orderStatus
+- createdAt
+
+=========================================
+AUTHENTICATION
+=========================================
+
+Implement
+
+User Registration
+
+User Login
+
+Logout
+
+JWT Authentication
+
+Protected Routes
+
+Admin Routes
+
+Password Hashing
+
+=========================================
+USER FEATURES
+=========================================
+
+Landing Page
+
+Hero Section
+
+Featured Products
+
+Categories
+
+New Arrivals
+
+Trending Collection
+
+About Brand
+
+Newsletter
+
+Footer
+
+=========================================
+SHOP
+=========================================
+
+Display Products
+
+Grid Layout
+
+Search
+
+Filter
+
+Category
+
+Gender
+
+Size
+
+Color
+
+Price Range
+
+Sorting
+
+Newest
+
+Price Low to High
+
+Price High to Low
+
+Rating
+
+=========================================
+PRODUCT PAGE
+=========================================
+
+Large Images
+
+Image Gallery
+
+Description
+
+Price
+
+Discount
+
+Available Sizes
+
+Available Colors
+
+Quantity Selector
+
+Add To Cart
+
+Buy Now
+
+Related Products
+
+=========================================
+CART
+=========================================
+
+Add Product
+
+Remove Product
+
+Increase Quantity
+
+Decrease Quantity
+
+Clear Cart
+
+Cart Total
+
+Tax
+
+Shipping
+
+Grand Total
+
+=========================================
+CHECKOUT
+=========================================
+
+Shipping Form
+
+Address
+
+City
+
+Country
+
+Postal Code
+
+Phone Number
+
+Place Order
+
+Store Order in Database
+
+=========================================
+USER DASHBOARD
+=========================================
+
+Profile
+
+Update Profile
+
+My Orders
+
+Order History
+
+Logout
+
+=========================================
+ADMIN PANEL
+=========================================
+
+Dashboard
+
+Statistics
+
+Total Products
+
+Total Orders
+
+Total Users
+
+Revenue
+
+Product Management
+
+Create Product
+
+Update Product
+
+Delete Product
+
+Upload Images
+
+Inventory Management
+
+Order Management
+
+Update Order Status
+
+User Management
+
+=========================================
+REST API
+=========================================
+
+POST /api/auth/register
+
+POST /api/auth/login
+
+GET /api/products
+
+GET /api/products/:id
+
+POST /api/products
+
+PUT /api/products/:id
+
+DELETE /api/products/:id
+
+POST /api/cart
+
+GET /api/cart
+
+DELETE /api/cart/:id
+
+POST /api/orders
+
+GET /api/orders
+
+PUT /api/orders/:id
+
+=========================================
+UI DESIGN
+=========================================
+
+Modern Clothing Brand
+
+Minimal Design
+
+Luxury Feel
+
+Rounded Cards
+
+Smooth Animations
+
+Responsive
+
+Dark and Light Mode
+
+Beautiful Typography
+
+Large Product Images
+
+Hover Effects
+
+Loading Skeletons
+
+Toast Notifications
+
+=========================================
+VALIDATION
+=========================================
+
+Frontend Validation
+
+Backend Validation
+
+Email Validation
+
+Password Validation
+
+Product Validation
+
+=========================================
+ERROR HANDLING
+=========================================
+
+404 Page
+
+Unauthorized Page
+
+Server Errors
+
+Global Error Handler
+
+=========================================
+SECURITY
+=========================================
+
+Helmet
+
+Rate Limiting
+
+CORS
+
+JWT
+
+Hashed Passwords
+
+Input Sanitization
+
+=========================================
+PERFORMANCE
+=========================================
+
+Pagination
+
+Lazy Loading Images
+
+Optimized Queries
+
+Caching Ready
+
+=========================================
+SEED DATA
+=========================================
+
+Create 30 demo clothing products.
+
+Include
+
+Men
+
+Women
+
+Kids
+
+Shirts
+
+Hoodies
+
+Jeans
+
+Shoes
+
+Jackets
+
+Accessories
+
+=========================================
+README
+=========================================
+
+Provide complete setup instructions.
+
+How to install
+
+How to run frontend
+
+How to run backend
+
+How to connect MongoDB
+
+Environment Variables
+
+=========================================
+BONUS FEATURES
+=========================================
+
+Wishlist
+
+Recently Viewed
+
+Featured Products
+
+Best Sellers
+
+Discount Badge
+
+Coupon System
+
+Email Subscription
+
+Product Reviews
+
+Ratings
+
+=========================================
+CODE QUALITY
+=========================================
+
+Use reusable React components.
+
+Separate Controllers
+
+Separate Routes
+
+Separate Middleware
+
+Separate Models
+
+Separate Services
+
+Use async/await
+
+Follow MVC architecture
+
+Write clean comments.
+
+=========================================
+FINAL REQUIREMENT
+=========================================
+
+Generate the COMPLETE project.
+
+Do NOT leave placeholders.
+
+Create every required file.
+
+Write complete working code.
+
+The project should run immediately after:
+
+npm install
+
+npm run dev
+
+without requiring additional coding.
