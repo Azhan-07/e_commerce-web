@@ -20,7 +20,7 @@ const createGuestOrder = async (orderData) => {
     })),
     shippingAddress: orderData.shippingAddress,
     totalPrice: orderData.totalPrice,
-    orderStatus: "pending",
+    orderStatus: "processing",
     paymentStatus: "pending",
     estimatedDelivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
   });
@@ -63,6 +63,10 @@ const updateOrderStatus = async (orderId, orderStatus, paymentStatus) => {
 
   if (orderStatus) order.orderStatus = orderStatus;
   if (paymentStatus) order.paymentStatus = paymentStatus;
+
+  if (orderStatus === "delivered" && !paymentStatus) {
+    order.paymentStatus = "paid";
+  }
 
   return await order.save();
 };

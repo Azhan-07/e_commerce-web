@@ -12,12 +12,6 @@ const users = [
     password: "admin123",
     role: "admin",
   },
-  {
-    fullname: "John Doe",
-    email: "john@example.com",
-    password: "john123",
-    role: "user",
-  },
 ];
 
 const products = [

@@ -31,7 +31,7 @@
     @apply w-full px-4 py-3 border border-gray-300 rounded-lg
       focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
       dark:bg-dark-900 dark:border-gray-700 dark:text-white
-      transition-all duration-200
+      transition-all duration-300
       hover:border-gray-400 dark:hover:border-gray-600;
   }
   .card {
@@ -44,33 +44,63 @@
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
   .skeleton {
-    @apply animate-pulse bg-gray-200 dark:bg-dark-800 rounded;
+    @apply rounded;
+    background: linear-gradient(90deg, #e5e7eb 25%, #d1d5db 50%, #e5e7eb 75%);
+    background-size: 200% 100%;
+    animation: shimmerSlide 1.5s ease-in-out infinite;
+  }
+  .dark .skeleton {
+    background: linear-gradient(90deg, #3d3d3d 25%, #454545 50%, #3d3d3d 75%);
+    background-size: 200% 100%;
+  }
+  .glass {
+    @apply bg-white/70 dark:bg-dark-950/70 backdrop-blur-xl border border-white/20 dark:border-gray-800/30;
+  }
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-950 via-primary-700 to-primary-950 dark:from-white dark:via-primary-300 dark:to-white;
   }
 }
 
-/* ========== Animations ========== */
+/* ========== Core Animations ========== */
 
-/* Fade In */
 .animate-fade-in {
   animation: fadeIn 0.6s ease-out both;
 }
 
-/* Slide Up */
 .animate-slide-up {
   animation: slideUp 0.6s ease-out both;
 }
 
-/* Slide Down */
 .animate-slide-down {
   animation: slideDown 0.3s ease-out both;
 }
 
-/* Scale In */
 .animate-scale-in {
   animation: scaleIn 0.4s ease-out both;
 }
 
-/* Stagger children */
+.animate-blur-in {
+  animation: blurIn 0.8s ease-out both;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float 3s ease-in-out infinite 1.5s;
+}
+
+.animate-glow {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+.animate-rotate-slow {
+  animation: rotateSlow 20s linear infinite;
+}
+
+/* ========== Stagger Children ========== */
+
 .stagger-children > * {
   animation: slideUp 0.5s ease-out both;
 }
@@ -83,7 +113,8 @@
 .stagger-children > *:nth-child(7) { animation-delay: 480ms; }
 .stagger-children > *:nth-child(8) { animation-delay: 560ms; }
 
-/* Hover lift */
+/* ========== Utility Animations ========== */
+
 .hover-lift {
   @apply transition-all duration-300 ease-out;
 }
@@ -91,24 +122,26 @@
   @apply -translate-y-2 shadow-xl;
 }
 
-/* Pulse glow */
 .pulse-glow {
   animation: pulseGlow 2s ease-in-out infinite;
 }
 
-/* Shimmer */
+/* ========== Shimmer (improved) ========== */
+
 .shimmer {
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
   background-size: 200% 100%;
-  animation: shimmer 2s infinite;
+  animation: shimmerSlide 2s infinite;
 }
 
-/* Page transitions */
+/* ========== Page Transitions ========== */
+
 .page-enter {
   animation: pageEnter 0.4s ease-out both;
 }
 
-/* Button ripple */
+/* ========== Button Ripple ========== */
+
 .btn-ripple {
   position: relative;
   overflow: hidden;
@@ -128,25 +161,128 @@
   transition: 0s;
 }
 
-/* Navbar link underline */
+/* ========== Navbar Link Underline ========== */
+
 .nav-link {
   @apply relative;
 }
 .nav-link::after {
   content: '';
-  @apply absolute bottom-0 left-0 w-0 h-0.5 bg-primary-950 dark:bg-white transition-all duration-300;
+  @apply absolute bottom-0 left-0 w-0 h-0.5 bg-primary-950 dark:bg-white transition-all duration-300 ease-out;
 }
 .nav-link:hover::after {
   @apply w-full;
 }
 
-/* Image zoom */
+/* ========== Image Zoom ========== */
+
 .img-zoom {
   @apply transition-transform duration-700 ease-out;
 }
 .img-zoom:hover {
   @apply scale-110;
 }
+
+/* ========== Marquee ========== */
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+}
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* ========== Typewriter ========== */
+
+.typewriter {
+  overflow: hidden;
+  border-right: 3px solid currentColor;
+  white-space: nowrap;
+  animation: typing 3.5s steps(30, end), blink 0.75s step-end infinite;
+}
+
+/* ========== Card Hover Overlay ========== */
+
+.card-overlay {
+  @apply absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent
+    opacity-0 group-hover:opacity-100 transition-all duration-500
+    flex items-end justify-center pb-8;
+}
+
+/* ========== Floating Shapes ========== */
+
+.floating-shape {
+  @apply absolute rounded-full opacity-10;
+  animation: float 6s ease-in-out infinite;
+}
+
+/* ========== Glow Border ========== */
+
+.glow-border {
+  position: relative;
+}
+.glow-border::before {
+  content: '';
+  @apply absolute -inset-0.5 rounded-2xl opacity-0 transition-opacity duration-500;
+  background: linear-gradient(135deg, #2a2520, #746858, #2a2520);
+  z-index: -1;
+  filter: blur(8px);
+}
+.glow-border:hover::before {
+  @apply opacity-50;
+}
+
+/* ========== Input Focus Glow ========== */
+
+.input-glow:focus {
+  box-shadow: 0 0 0 3px rgba(42, 37, 32, 0.1);
+}
+.dark .input-glow:focus {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+}
+
+/* ========== Step Indicator ========== */
+
+.step-active {
+  @apply bg-primary-950 text-white dark:bg-white dark:text-dark-950;
+}
+.step-complete {
+  @apply bg-green-500 text-white;
+}
+.step-pending {
+  @apply bg-gray-200 text-gray-500 dark:bg-dark-800 dark:text-gray-400;
+}
+
+/* ========== Timeline ========== */
+
+.timeline-dot {
+  @apply w-4 h-4 rounded-full border-2 border-white dark:border-dark-950;
+}
+.timeline-line {
+  @apply w-0.5 h-full bg-gray-200 dark:bg-dark-800;
+}
+.timeline-line-active {
+  @apply w-0.5 h-full bg-primary-950 dark:bg-white;
+}
+
+/* ========== Scrollbar ========== */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-dark-900;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-dark-700 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400 dark:bg-dark-600;
+}
+
+/* ========== Keyframes ========== */
 
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -168,12 +304,32 @@
   to { opacity: 1; transform: scale(1); }
 }
 
+@keyframes blurIn {
+  from { opacity: 0; filter: blur(10px); }
+  to { opacity: 1; filter: blur(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 5px rgba(42, 37, 32, 0.2); }
+  50% { box-shadow: 0 0 25px 5px rgba(42, 37, 32, 0.15); }
+}
+
+@keyframes rotateSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 @keyframes pulseGlow {
   0%, 100% { box-shadow: 0 0 0 0 rgba(42, 37, 32, 0.2); }
   50% { box-shadow: 0 0 20px 5px rgba(42, 37, 32, 0.1); }
 }
 
-@keyframes shimmer {
+@keyframes shimmerSlide {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
@@ -183,21 +339,50 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
+@keyframes typing {
+  from { width: 0; }
+  to { width: 100%; }
 }
-::-webkit-scrollbar-track {
-  @apply bg-gray-100 dark:bg-dark-900;
+
+@keyframes blink {
+  from, to { border-color: transparent; }
+  50% { border-color: currentColor; }
 }
-::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 dark:bg-dark-700 rounded-full;
+
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-400 dark:bg-dark-600;
+
+@keyframes bounceIn {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ========== Selection ========== */
+
+::selection {
+  @apply bg-primary-950 text-white dark:bg-white dark:text-dark-950;
 }

@@ -8,11 +8,13 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import API from "../utils/api";
 import toast from "react-hot-toast";
+import { HiOutlineCheck, HiOutlineShoppingBag, HiOutlineMapPin } from "react-icons/hi2";
 
 const Checkout = () => {
   const { cart, clearCart } = useCart();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState(1);
   const [form, setForm] = useState({
     customerName: "",
     customerEmail: "",
@@ -33,7 +35,6 @@ const Checkout = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
     if (!form.customerName.trim()) {
       toast.error("Your name is required");
       return;
@@ -94,7 +95,7 @@ const Checkout = () => {
         notes: form.notes,
       };
 
-      const { data } = await API.post("/orders", orderData);
+      await API.post("/orders", orderData);
       await clearCart();
       toast.success("Order placed successfully!");
       localStorage.setItem("lastOrderEmail", form.customerEmail);
@@ -111,12 +112,22 @@ const Checkout = () => {
   const shipping = subtotal > 100 ? 0 : 9.99;
   const grandTotal = subtotal + tax + shipping;
 
+  const steps = [
+    { id: 1, name: "Information", icon: HiOutlineCheck },
+    { id: 2, name: "Shipping", icon: HiOutlineMapPin },
+  ];
+
   if (cart.products.length === 0) {
     return (
       <div className="container-custom py-20 text-center animate-fade-in">
-        <h1 className="font-display text-3xl font-bold mb-4">Your cart is empty</h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-8">Add some products before checking out</p>
-        <a href="/shop" className="btn-primary">Continue Shopping</a>
+        <div className="animate-scale-in">
+          <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 dark:bg-dark-800 rounded-full flex items-center justify-center">
+            <HiOutlineShoppingBag className="w-10 h-10 text-gray-300 dark:text-gray-600" />
+          </div>
+          <h1 className="font-display text-3xl font-bold mb-4">Your cart is empty</h1>
+          <p className="text-gray-600 dark:text-gray-400 mb-8">Add some products before checking out</p>
+          <a href="/shop" className="btn-primary btn-ripple inline-block">Continue Shopping</a>
+        </div>
       </div>
     );
   }
@@ -125,48 +136,69 @@ const Checkout = () => {
     <div className="container-custom py-8 animate-fade-in">
       <h1 className="font-display text-3xl font-bold mb-8 page-enter">Checkout</h1>
 
+      {/* Step indicator */}
+      <div className="flex items-center justify-center mb-10 max-w-md mx-auto">
+        {steps.map((s, i) => (
+          <div key={s.id} className="flex items-center">
+            <div className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-500 ${
+              step >= s.id
+                ? "bg-primary-950 text-white dark:bg-white dark:text-dark-950 shadow-lg"
+                : "bg-gray-100 dark:bg-dark-800 text-gray-400"
+            }`}>
+              <s.icon className="w-4 h-4" />
+              <span>{s.name}</span>
+            </div>
+            {i < steps.length - 1 && (
+              <div className={`w-12 h-0.5 mx-2 transition-colors duration-500 ${
+                step > s.id ? "bg-primary-950 dark:bg-white" : "bg-gray-200 dark:bg-dark-800"
+              }`} />
+            )}
+          </div>
+        ))}
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        <form onSubmit={handleSubmit} className="lg:col-span-2 space-y-6 animate-slide-up">
-          <div>
+        <form onSubmit={handleSubmit} className="lg:col-span-2 space-y-6">
+          <div className="animate-slide-up" style={{ animationDelay: "50ms" }}>
             <h3 className="font-semibold text-lg mb-4">Your Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
+              <div className="animate-slide-up" style={{ animationDelay: "100ms" }}>
                 <label className="text-sm font-medium mb-2 block">Your Full Name *</label>
                 <input
                   type="text"
                   name="customerName"
                   value={form.customerName}
                   onChange={handleChange}
-                  className="input-field"
+                  className="input-field input-glow"
                   required
                 />
               </div>
-              <div>
+              <div className="animate-slide-up" style={{ animationDelay: "150ms" }}>
                 <label className="text-sm font-medium mb-2 block">Email Address *</label>
                 <input
                   type="email"
                   name="customerEmail"
                   value={form.customerEmail}
                   onChange={handleChange}
-                  className="input-field"
+                  className="input-field input-glow"
                   required
                 />
               </div>
             </div>
-            <div className="mt-4">
+            <div className="mt-4 animate-slide-up" style={{ animationDelay: "200ms" }}>
               <label className="text-sm font-medium mb-2 block">Phone Number *</label>
               <input
                 type="tel"
                 name="customerPhone"
                 value={form.customerPhone}
                 onChange={handleChange}
-                className="input-field"
+                className="input-field input-glow"
                 required
               />
             </div>
           </div>
 
-          <div>
+          <div className="animate-slide-up" style={{ animationDelay: "250ms" }}>
             <h3 className="font-semibold text-lg mb-4">Shipping Address</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -176,7 +208,7 @@ const Checkout = () => {
                   name="fullName"
                   value={form.fullName}
                   onChange={handleChange}
-                  className="input-field"
+                  className="input-field input-glow"
                   required
                 />
               </div>
@@ -187,7 +219,7 @@ const Checkout = () => {
                   name="phone"
                   value={form.phone}
                   onChange={handleChange}
-                  className="input-field"
+                  className="input-field input-glow"
                   placeholder="(Optional if same as above)"
                 />
               </div>
@@ -200,7 +232,7 @@ const Checkout = () => {
                 name="address"
                 value={form.address}
                 onChange={handleChange}
-                className="input-field"
+                className="input-field input-glow"
                 placeholder="Street address"
                 required
               />
@@ -214,7 +246,7 @@ const Checkout = () => {
                   name="city"
                   value={form.city}
                   onChange={handleChange}
-                  className="input-field"
+                  className="input-field input-glow"
                   required
                 />
               </div>
@@ -225,7 +257,7 @@ const Checkout = () => {
                   name="country"
                   value={form.country}
                   onChange={handleChange}
-                  className="input-field"
+                  className="input-field input-glow"
                   required
                 />
               </div>
@@ -236,7 +268,7 @@ const Checkout = () => {
                   name="postalCode"
                   value={form.postalCode}
                   onChange={handleChange}
-                  className="input-field"
+                  className="input-field input-glow"
                   required
                 />
               </div>
@@ -248,7 +280,7 @@ const Checkout = () => {
                 name="notes"
                 value={form.notes}
                 onChange={handleChange}
-                className="input-field resize-none"
+                className="input-field resize-none input-glow"
                 rows="3"
                 placeholder="Any special instructions..."
               />
@@ -260,16 +292,23 @@ const Checkout = () => {
             disabled={loading || cart.products.length === 0}
             className="btn-primary btn-ripple w-full md:w-auto"
           >
-            {loading ? "Placing Order..." : "Place Order"}
+            {loading ? (
+              <span className="flex items-center justify-center space-x-2">
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>Placing Order...</span>
+              </span>
+            ) : (
+              `Place Order — $${grandTotal.toFixed(2)}`
+            )}
           </button>
         </form>
 
         {/* Order Summary */}
-        <div className="border rounded-2xl p-6 dark:border-gray-800 h-fit animate-slide-up hover:shadow-lg transition-shadow duration-500" style={{ animationDelay: "200ms" }}>
+        <div className="border rounded-2xl p-6 dark:border-gray-800 h-fit animate-slide-up glow-border" style={{ animationDelay: "200ms" }}>
           <h3 className="font-semibold text-lg mb-6">Order Summary</h3>
-          <div className="space-y-4 mb-6 max-h-64 overflow-y-auto">
-            {cart.products.map((item) => (
-              <div key={item._id} className="flex items-center space-x-3">
+          <div className="space-y-4 mb-6 max-h-64 overflow-y-auto pr-1">
+            {cart.products.map((item, i) => (
+              <div key={item._id} className="flex items-center space-x-3 animate-slide-up" style={{ animationDelay: `${i * 50}ms` }}>
                 <img
                   src={item.image || "/placeholder.png"}
                   alt={item.title}
@@ -299,7 +338,9 @@ const Checkout = () => {
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500 dark:text-gray-400">Shipping</span>
-              <span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
+              <span>{shipping === 0 ? (
+                <span className="text-green-600 dark:text-green-400 font-semibold">Free</span>
+              ) : `$${shipping.toFixed(2)}`}</span>
             </div>
             <div className="border-t pt-2 flex justify-between font-semibold text-base">
               <span>Total</span>
@@ -313,4 +354,3 @@ const Checkout = () => {
 };
 
 export default Checkout;
-

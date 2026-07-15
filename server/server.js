@@ -5,6 +5,7 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const rateLimit = require("express-rate-limit");
 const path = require("path");
+const net = require("net");
 
 const connectDB = require("./config/db");
 const errorHandler = require("./middleware/error");
@@ -12,9 +13,6 @@ const User = require("./models/User");
 const Product = require("./models/Product");
 
 dotenv.config();
-
-// Flag to prevent multiple server startups
-let serverStarted = false;
 
 const seedIfEmpty = async () => {
   try {
@@ -34,7 +32,7 @@ const seedIfEmpty = async () => {
     if (productCount === 0) {
       console.log("No products found. Seeding products...");
       await Product.insertMany(seedProducts);
-      console.log("30 products seeded.");
+      console.log("Products seeded.");
     }
   } catch (error) {
     console.error("Auto-seed error:", error.message);
@@ -54,33 +52,42 @@ const seedProducts = [
   { title: "Silk Camisole Top", description: "Delicate silk camisole with adjustable spaghetti straps.", price: 79.99, discount: 0, category: "shirts", gender: "women", sizes: ["XS", "S", "M", "L"], colors: ["Champagne", "Black"], stock: 28, images: ["https://images.unsplash.com/photo-1564257631407-4deb1f99d992?w=600"], featured: false },
 ];
 
-const startServer = async () => {
-  try {
-    // Prevent multiple startups
-    if (serverStarted) {
-      console.log("Server already started, skipping initialization");
-      return;
-    }
-    serverStarted = true;
+const isPortAvailable = (port) => {
+  return new Promise((resolve, reject) => {
+    const server = net.createServer();
+    server.once("error", () => reject(false));
+    server.once("listening", () => {
+      server.close(() => resolve(true));
+    });
+    server.listen(port);
+  });
+};
 
-    // Connect to database
+let server = null;
+
+const startServer = async () => {
+  const PORT = process.env.PORT || 5000;
+
+  try {
+    const portAvailable = await isPortAvailable(PORT).catch(() => false);
+    if (!portAvailable) {
+      console.error(`Port ${PORT} is already in use. Please stop the other process or use a different port.`);
+      process.exit(1);
+    }
+
     await connectDB();
     console.log("Database initialized");
 
-    // Seed database if empty
     await seedIfEmpty();
     console.log("Database seeding complete");
 
-    // Initialize Express app
     const app = express();
 
-    // Security middleware
     app.use(helmet({
       contentSecurityPolicy: false,
       crossOriginEmbedderPolicy: false,
     }));
 
-    // CORS configuration
     app.use(
       cors({
         origin: process.env.NODE_ENV === "production"
@@ -90,19 +97,16 @@ const startServer = async () => {
       })
     );
 
-    // Logging
     if (process.env.NODE_ENV === "development") {
       app.use(morgan("dev"));
     }
 
-    // Rate limiting
     const limiter = rateLimit({
       windowMs: 15 * 60 * 1000,
       max: 200,
     });
     app.use("/api", limiter);
 
-    // Admin login rate limit (stricter)
     const adminLoginLimiter = rateLimit({
       windowMs: 15 * 60 * 1000,
       max: 5,
@@ -110,20 +114,17 @@ const startServer = async () => {
     });
     app.use("/api/admin-auth/admin-login", adminLoginLimiter);
 
-    // Body parser
     app.use(express.json({ limit: "10mb" }));
     app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-    // Static files
     app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-    // Routes
     app.use("/api/admin-auth", require("./routes/adminAuth"));
     app.use("/api/categories", require("./routes/categories"));
     app.use("/api/products", require("./routes/products"));
     app.use("/api/orders", require("./routes/orders"));
+    app.use("/api/subscribers", require("./routes/subscriber"));
 
-    // Production: serve frontend
     if (process.env.NODE_ENV === "production") {
       app.use(express.static(path.join(__dirname, "../client/dist")));
       app.get("*", (req, res) => {
@@ -131,23 +132,40 @@ const startServer = async () => {
       });
     }
 
-    // Global error handler (must be last)
     app.use(errorHandler);
 
-    const PORT = process.env.PORT || 5000;
-
-    // Start server
-    app.listen(PORT, () => {
+    server = app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
   } catch (error) {
     console.error("Server initialization error:", error.message);
-    console.error(error);
-    serverStarted = false; // Reset flag to allow retry
-    process.exit(1); // Exit process on fatal error
+    process.exit(1);
   }
 };
 
-// Start the server
+const gracefulShutdown = (signal) => {
+  console.log(`\n${signal} received. Shutting down gracefully...`);
+  if (server) {
+    server.close(() => {
+      console.log("Server closed.");
+      process.exit(0);
+    });
+  } else {
+    process.exit(0);
+  }
+  setTimeout(() => {
+    console.error("Forced shutdown after timeout.");
+    process.exit(1);
+  }, 5000);
+};
+
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+
+process.on("unhandledRejection", (err) => {
+  console.error("Unhandled Rejection:", err.message);
+  gracefulShutdown("unhandledRejection");
+});
+
 startServer();
 

@@ -45,4 +45,16 @@ exports.getAdminProfile = async (req, res, next) => {
   }
 };
 
+exports.getUsers = async (req, res, next) => {
+  try {
+    const User = require("../models/User");
+    const users = await User.find({}).sort({ createdAt: -1 });
+    return res.status(200).json(
+      successResponse(200, "Users retrieved successfully", users)
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = exports;
