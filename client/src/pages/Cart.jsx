@@ -13,36 +13,6 @@ const Cart = () => {
   const shipping = subtotal > 100 ? 0 : 9.99;
   const grandTotal = subtotal + tax + shipping;
 
-  if (!user) {
-    return (
-      <div className="container-custom py-20 text-center animate-fade-in">
-        <h2 className="text-2xl font-bold mb-4">Please login to view your cart</h2>
-        <Link to="/login" className="btn-primary btn-ripple inline-block">
-          Login
-        </Link>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="container-custom py-8">
-        <div className="space-y-4">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="flex space-x-4 border rounded-xl p-4 animate-pulse">
-              <div className="w-24 h-24 skeleton rounded-lg" />
-              <div className="flex-1 space-y-2">
-                <div className="h-4 skeleton w-1/3" />
-                <div className="h-3 skeleton w-1/4" />
-                <div className="h-3 skeleton w-1/5" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   if (cart.products.length === 0) {
     return (
       <div className="container-custom py-20 text-center animate-fade-in">

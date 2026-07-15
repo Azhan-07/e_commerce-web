@@ -50,17 +50,12 @@ const ProductPage = () => {
   }, [id, user]);
 
   const handleAddToCart = async () => {
-    if (!user) {
-      toast.error("Please login to add items to cart");
-      navigate("/login");
-      return;
-    }
     if (product.sizes.length > 0 && !selectedSize) {
       toast.error("Please select a size");
       return;
     }
     try {
-      await addToCart(product._id, quantity, selectedSize, selectedColor);
+      await addToCart(product._id, quantity, selectedSize, selectedColor, product);
       toast.success("Added to cart!");
     } catch (error) {
       toast.error("Failed to add to cart");

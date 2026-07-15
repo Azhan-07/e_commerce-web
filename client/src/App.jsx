@@ -6,16 +6,17 @@ import { ThemeProvider } from "./context/ThemeContext";
 import ErrorBoundary from "./components/ErrorBoundary";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import PrivateRoute from "./components/PrivateRoute";
 import AdminRoute from "./components/AdminRoute";
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
 import ProductPage from "./pages/ProductPage";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
+import OrderTracking from "./pages/OrderTracking";
+import Categories from "./pages/Categories";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import AdminLogin from "./pages/AdminLogin";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
@@ -34,24 +35,12 @@ function App() {
                     <Route path="/shop" element={<Shop />} />
                     <Route path="/product/:id" element={<ProductPage />} />
                     <Route path="/cart" element={<Cart />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route
-                      path="/checkout"
-                      element={
-                        <PrivateRoute>
-                          <Checkout />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      path="/dashboard"
-                      element={
-                        <PrivateRoute>
-                          <Dashboard />
-                        </PrivateRoute>
-                      }
-                    />
+                    <Route path="/checkout" element={<Checkout />} />
+                    <Route path="/order-tracking" element={<OrderTracking />} />
+                    <Route path="/categories" element={<Categories />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/admin-login" element={<AdminLogin />} />
                     <Route
                       path="/admin"
                       element={
@@ -85,3 +74,5 @@ function App() {
 }
 
 export default App;
+
+

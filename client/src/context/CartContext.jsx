@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import API from "../utils/api";
-import { useAuth } from "./AuthContext";
 
 const CartContext = createContext();
 
@@ -8,53 +7,96 @@ export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState({ products: [], total: 0 });
   const [cartCount, setCartCount] = useState(0);
   const [loading, setLoading] = useState(false);
-  const { user } = useAuth();
 
-  const fetchCart = async () => {
-    if (!user) return;
-    try {
-      setLoading(true);
-      const { data } = await API.get("/cart");
-      setCart(data);
-      setCartCount(data.products.reduce((acc, item) => acc + item.quantity, 0));
-    } catch (error) {
-      console.error("Failed to fetch cart", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Load cart from localStorage on mount
   useEffect(() => {
-    if (user) {
-      fetchCart();
-    } else {
-      setCart({ products: [], total: 0 });
-      setCartCount(0);
+    const savedCart = localStorage.getItem("guestCart");
+    if (savedCart) {
+      try {
+        const parsedCart = JSON.parse(savedCart);
+        setCart(parsedCart);
+        setCartCount(parsedCart.products.reduce((acc, item) => acc + item.quantity, 0));
+      } catch (error) {
+        console.error("Failed to load cart from localStorage", error);
+      }
     }
-  }, [user]);
+  }, []);
 
-  const addToCart = async (productId, quantity = 1, size, color) => {
-    const { data } = await API.post("/cart", { productId, quantity, size, color });
-    setCart(data);
-    setCartCount(data.products.reduce((acc, item) => acc + item.quantity, 0));
+  // Save cart to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("guestCart", JSON.stringify(cart));
+  }, [cart]);
+
+  const addToCart = async (productId, quantity = 1, size, color, productData) => {
+    const newItem = {
+      _id: Math.random().toString(36).substr(2, 9),
+      product: productId,
+      title: productData?.title || "Product",
+      image: productData?.images?.[0] || "",
+      price: productData?.price || 0,
+      size,
+      color,
+      quantity,
+    };
+
+    const existingItemIndex = cart.products.findIndex(
+      (item) =>
+        item.product === productId &&
+        item.size === size &&
+        item.color === color
+    );
+
+    let updatedCart;
+    if (existingItemIndex > -1) {
+      const updatedProducts = [...cart.products];
+      updatedProducts[existingItemIndex].quantity += quantity;
+      updatedCart = { ...cart, products: updatedProducts };
+    } else {
+      updatedCart = { ...cart, products: [...cart.products, newItem] };
+    }
+
+    // Calculate total
+    updatedCart.total = updatedCart.products.reduce(
+      (acc, item) => acc + item.price * item.quantity,
+      0
+    );
+
+    setCart(updatedCart);
+    setCartCount(updatedCart.products.reduce((acc, item) => acc + item.quantity, 0));
   };
 
   const updateQuantity = async (itemId, quantity) => {
-    const { data } = await API.put(`/cart/${itemId}`, { quantity });
-    setCart(data);
-    setCartCount(data.products.reduce((acc, item) => acc + item.quantity, 0));
+    const updatedProducts = cart.products.map((item) =>
+      item._id === itemId ? { ...item, quantity } : item
+    );
+
+    const updatedCart = { ...cart, products: updatedProducts };
+    updatedCart.total = updatedCart.products.reduce(
+      (acc, item) => acc + item.price * item.quantity,
+      0
+    );
+
+    setCart(updatedCart);
+    setCartCount(updatedCart.products.reduce((acc, item) => acc + item.quantity, 0));
   };
 
   const removeFromCart = async (itemId) => {
-    const { data } = await API.delete(`/cart/${itemId}`);
-    setCart(data);
-    setCartCount(data.products.reduce((acc, item) => acc + item.quantity, 0));
+    const updatedProducts = cart.products.filter((item) => item._id !== itemId);
+
+    const updatedCart = { ...cart, products: updatedProducts };
+    updatedCart.total = updatedCart.products.reduce(
+      (acc, item) => acc + item.price * item.quantity,
+      0
+    );
+
+    setCart(updatedCart);
+    setCartCount(updatedCart.products.reduce((acc, item) => acc + item.quantity, 0));
   };
 
   const clearCart = async () => {
-    await API.delete("/cart");
     setCart({ products: [], total: 0 });
     setCartCount(0);
+    localStorage.removeItem("guestCart");
   };
 
   return (
@@ -67,7 +109,6 @@ export const CartProvider = ({ children }) => {
         updateQuantity,
         removeFromCart,
         clearCart,
-        fetchCart,
       }}
     >
       {children}

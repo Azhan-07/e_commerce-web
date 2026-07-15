@@ -17,8 +17,8 @@ const Home = () => {
           API.get("/products/featured"),
           API.get("/products/new-arrivals"),
         ]);
-        if (featuredRes.status === "fulfilled") setFeatured(featuredRes.value.data);
-        if (arrivalsRes.status === "fulfilled") setNewArrivals(arrivalsRes.value.data);
+        if (featuredRes.status === "fulfilled") setFeatured(featuredRes.value?.data || []);
+        if (arrivalsRes.status === "fulfilled") setNewArrivals(arrivalsRes.value?.data || []);
       } catch (err) {
         setError("Failed to load products. Make sure the server is running.");
       } finally {

@@ -1,46 +1,58 @@
-const Order = require("../models/Order");
-const Cart = require("../models/Cart");
+/**
+ * Order Controller
+ */
+
+const { successResponse, errorResponse } = require("../utils/responses");
+const orderService = require("../services/orderService");
 
 exports.createOrder = async (req, res, next) => {
   try {
-    const { shippingAddress } = req.body;
+    const { shippingAddress, customerName, customerEmail, customerPhone, products, totalPrice } = req.body;
 
-    const cart = await Cart.findOne({ user: req.user._id });
-    if (!cart || cart.products.length === 0) {
-      return res.status(400).json({ message: "No items in cart" });
+    if (!products || products.length === 0) {
+      return res.status(400).json(
+        errorResponse(400, "Order must contain at least one product")
+      );
     }
 
-    const order = await Order.create({
-      user: req.user._id,
-      products: cart.products.map((item) => ({
-        product: item.product,
-        title: item.title,
-        image: item.image,
-        price: item.price,
-        size: item.size,
-        color: item.color,
-        quantity: item.quantity,
-      })),
+    if (!customerName || !customerEmail || !customerPhone) {
+      return res.status(400).json(
+        errorResponse(400, "Customer name, email, and phone are required")
+      );
+    }
+
+    const order = await orderService.createGuestOrder({
+      customerName,
+      customerEmail,
+      customerPhone,
+      products,
       shippingAddress,
-      totalPrice: cart.total,
+      totalPrice,
     });
 
-    cart.products = [];
-    cart.total = 0;
-    await cart.save();
-
-    res.status(201).json(order);
+    return res.status(201).json(
+      successResponse(201, "Order created successfully", order)
+    );
   } catch (error) {
     next(error);
   }
 };
 
-exports.getMyOrders = async (req, res, next) => {
+exports.trackOrderByEmail = async (req, res, next) => {
   try {
-    const orders = await Order.find({ user: req.user._id })
-      .populate("products.product")
-      .sort({ createdAt: -1 });
-    res.json(orders);
+    const { email } = req.params;
+
+    if (!email) {
+      return res.status(400).json(
+        errorResponse(400, "Email is required for tracking orders")
+      );
+    }
+
+    const orders = await orderService.getOrdersByEmail(email);
+
+    return res.status(200).json(
+      successResponse(200, "Orders retrieved successfully", orders)
+    );
   } catch (error) {
     next(error);
   }
@@ -48,14 +60,17 @@ exports.getMyOrders = async (req, res, next) => {
 
 exports.getOrder = async (req, res, next) => {
   try {
-    const order = await Order.findById(req.params.id)
-      .populate("user", "fullname email")
-      .populate("products.product");
-    if (order) {
-      res.json(order);
-    } else {
-      res.status(404).json({ message: "Order not found" });
+    const order = await orderService.getOrderById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json(
+        errorResponse(404, "Order not found")
+      );
     }
+
+    return res.status(200).json(
+      successResponse(200, "Order retrieved successfully", order)
+    );
   } catch (error) {
     next(error);
   }
@@ -63,10 +78,14 @@ exports.getOrder = async (req, res, next) => {
 
 exports.getAllOrders = async (req, res, next) => {
   try {
-    const orders = await Order.find({})
-      .populate("user", "fullname email")
-      .sort({ createdAt: -1 });
-    res.json(orders);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+
+    const result = await orderService.getAllOrders(page, limit);
+
+    return res.status(200).json(
+      successResponse(200, "All orders retrieved successfully", result)
+    );
   } catch (error) {
     next(error);
   }
@@ -74,16 +93,23 @@ exports.getAllOrders = async (req, res, next) => {
 
 exports.updateOrderStatus = async (req, res, next) => {
   try {
-    const order = await Order.findById(req.params.id);
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
+    const { orderStatus, paymentStatus } = req.body;
+
+    if (!orderStatus && !paymentStatus) {
+      return res.status(400).json(
+        errorResponse(400, "Please provide orderStatus or paymentStatus to update")
+      );
     }
 
-    order.orderStatus = req.body.orderStatus || order.orderStatus;
-    order.paymentStatus = req.body.paymentStatus || order.paymentStatus;
+    const order = await orderService.updateOrderStatus(
+      req.params.id,
+      orderStatus,
+      paymentStatus
+    );
 
-    const updatedOrder = await order.save();
-    res.json(updatedOrder);
+    return res.status(200).json(
+      successResponse(200, "Order status updated successfully", order)
+    );
   } catch (error) {
     next(error);
   }
@@ -91,46 +117,11 @@ exports.updateOrderStatus = async (req, res, next) => {
 
 exports.getDashboardStats = async (req, res, next) => {
   try {
-    const Order = require("../models/Order");
-    const User = require("../models/User");
-    const Product = require("../models/Product");
+    const stats = await orderService.getDashboardStats();
 
-    const totalProducts = await Product.countDocuments();
-    const totalOrders = await Order.countDocuments();
-    const totalUsers = await User.countDocuments();
-
-    const revenue = await Order.aggregate([
-      { $group: { _id: null, total: { $sum: "$totalPrice" } } },
-    ]);
-
-    const recentOrders = await Order.find({})
-      .populate("user", "fullname email")
-      .sort({ createdAt: -1 })
-      .limit(5);
-
-    const monthlySales = await Order.aggregate([
-      {
-        $group: {
-          _id: {
-            year: { $year: "$createdAt" },
-            month: { $month: "$createdAt" },
-          },
-          total: { $sum: "$totalPrice" },
-          count: { $sum: 1 },
-        },
-      },
-      { $sort: { "_id.year": -1, "_id.month": -1 } },
-      { $limit: 12 },
-    ]);
-
-    res.json({
-      totalProducts,
-      totalOrders,
-      totalUsers,
-      revenue: revenue[0]?.total || 0,
-      recentOrders,
-      monthlySales,
-    });
+    return res.status(200).json(
+      successResponse(200, "Dashboard statistics retrieved", stats)
+    );
   } catch (error) {
     next(error);
   }

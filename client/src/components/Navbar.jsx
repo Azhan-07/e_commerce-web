@@ -1,3 +1,8 @@
+/**
+ * Navbar Component
+ * Guest-friendly navigation with admin login
+ */
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -5,7 +10,6 @@ import { useCart } from "../context/CartContext";
 import { useTheme } from "../context/ThemeContext";
 import {
   HiOutlineShoppingBag,
-  HiOutlineUser,
   HiOutlineSearch,
   HiOutlineMenu,
   HiOutlineX,
@@ -17,7 +21,7 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { user, logout } = useAuth();
+  const { admin, adminLogout } = useAuth();
   const { cartCount } = useCart();
   const { darkMode, toggleDarkMode } = useTheme();
   const navigate = useNavigate();
@@ -33,7 +37,10 @@ const Navbar = () => {
 
   const navLinks = [
     { name: "Home", path: "/" },
-    { name: "Shop", path: "/shop" },
+    { name: "Products", path: "/shop" },
+    { name: "Categories", path: "/categories" },
+    { name: "About", path: "/about" },
+    { name: "Contact", path: "/contact" },
   ];
 
   return (
@@ -78,29 +85,30 @@ const Navbar = () => {
               )}
             </button>
 
-            {user ? (
+            {admin ? (
               <div className="hidden md:flex items-center space-x-2">
                 <Link
-                  to="/dashboard"
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded-full transition-all duration-300 hover:scale-110 active:scale-95"
+                  to="/admin"
+                  className="text-xs font-medium px-3 py-1 bg-primary-950 text-white dark:bg-white dark:text-dark-950 rounded-full hover:scale-105 transition-transform duration-300"
                 >
-                  <HiOutlineUser className="w-5 h-5" />
+                  Admin
                 </Link>
-                {user.role === "admin" && (
-                  <Link
-                    to="/admin"
-                    className="text-xs font-medium px-3 py-1 bg-primary-950 text-white dark:bg-white dark:text-dark-950 rounded-full hover:scale-105 transition-transform duration-300"
-                  >
-                    Admin
-                  </Link>
-                )}
+                <button
+                  onClick={() => {
+                    adminLogout();
+                    navigate("/");
+                  }}
+                  className="text-xs font-medium px-3 py-1 bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-200 rounded-full hover:scale-105 transition-transform duration-300"
+                >
+                  Logout
+                </button>
               </div>
             ) : (
               <Link
-                to="/login"
-                className="hidden md:block text-sm font-medium hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                to="/admin-login"
+                className="hidden md:inline text-xs font-medium px-3 py-1 bg-gray-100 dark:bg-dark-800 rounded-full hover:scale-105 transition-transform duration-300"
               >
-                Login
+                Admin
               </Link>
             )}
 
@@ -154,41 +162,33 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
-            {user ? (
+            {admin ? (
               <>
                 <Link
-                  to="/dashboard"
+                  to="/admin"
                   onClick={() => setMobileOpen(false)}
-                  className="block py-2 px-3 text-sm font-medium hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-50 dark:hover:bg-dark-900 rounded-lg transition-all duration-200"
+                  className="block py-2 px-3 text-sm font-medium bg-primary-950 text-white dark:bg-white dark:text-dark-950 rounded-lg transition-all duration-200"
                 >
-                  Dashboard
+                  Admin Panel
                 </Link>
-                {user.role === "admin" && (
-                  <Link
-                    to="/admin"
-                    onClick={() => setMobileOpen(false)}
-                    className="block py-2 px-3 text-sm font-medium hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-50 dark:hover:bg-dark-900 rounded-lg transition-all duration-200"
-                  >
-                    Admin Panel
-                  </Link>
-                )}
                 <button
                   onClick={() => {
-                    logout();
+                    adminLogout();
                     setMobileOpen(false);
+                    navigate("/");
                   }}
-                  className="block w-full text-left py-2 px-3 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-all duration-200"
+                  className="block w-full text-left py-2 px-3 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-all duration-200"
                 >
                   Logout
                 </button>
               </>
             ) : (
               <Link
-                to="/login"
+                to="/admin-login"
                 onClick={() => setMobileOpen(false)}
-                className="block py-2 px-3 text-sm font-medium hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-50 dark:hover:bg-dark-900 rounded-lg transition-all duration-200"
+                className="block py-2 px-3 text-sm font-medium hover:bg-gray-50 dark:hover:bg-dark-900 rounded-lg transition-all duration-200"
               >
-                Login
+                Admin Login
               </Link>
             )}
           </div>
@@ -199,3 +199,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+

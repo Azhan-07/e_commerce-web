@@ -112,6 +112,16 @@ const Admin = () => {
     }
   };
 
+  const handleStockUpdate = async (productId, newStock) => {
+    try {
+      await API.put(`/products/${productId}`, { stock: newStock });
+      toast.success("Stock updated!");
+      fetchProducts();
+    } catch (error) {
+      toast.error("Failed to update stock");
+    }
+  };
+
   const handleEditProduct = (product) => {
     setEditingId(product._id);
     setProductForm({
@@ -269,6 +279,22 @@ const Admin = () => {
                       <p className="text-xs text-gray-500">
                         ${p.price} / Stock: {p.stock}
                       </p>
+                      <div className="mt-2 flex items-center space-x-2">
+                        <input
+                          type="number"
+                          value={p.stock}
+                          onChange={(e) => handleStockUpdate(p._id, parseInt(e.target.value))}
+                          className="input-field text-xs w-20"
+                          min="0"
+                        />
+                        <span className={`text-xs font-medium px-2 py-1 rounded ${
+                          p.stock > 20 ? "bg-green-100 text-green-700" :
+                          p.stock > 5 ? "bg-yellow-100 text-yellow-700" :
+                          "bg-red-100 text-red-700"
+                        }`}>
+                          {p.stock > 20 ? "✓ In Stock" : p.stock > 5 ? "⚠ Low Stock" : "❌ Critical"}
+                        </span>
+                      </div>
                     </div>
                     <div className="flex space-x-2">
                       <button
@@ -487,34 +513,39 @@ const Admin = () => {
 
           {tab === "orders" && (
             <div className="space-y-4">
-              <h2 className="font-semibold text-lg">All Orders</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-semibold text-lg">All Orders ({orders.length})</h2>
+                <div className="flex items-center space-x-2">
+                  <select
+                    className="input-field text-sm w-32"
+                    onChange={(e) => {
+                      const filtered = orders.filter(o =>
+                        e.target.value === "all" ? true : o.orderStatus === e.target.value
+                      );
+                      setOrders(filtered);
+                    }}
+                  >
+                    <option value="all">All Status</option>
+                    <option value="processing">Processing</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                </div>
+              </div>
+
               {orders.map((order) => (
                 <div
                   key={order._id}
                   className="border rounded-xl p-4 dark:border-gray-800"
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">
-                      {order.user?.fullname} ({order.user?.email})
-                    </span>
-                    <span className="text-sm text-gray-500">
-                      {new Date(order.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-3 mb-3">
-                    {order.products.slice(0, 3).map((item, i) => (
-                      <img
-                        key={i}
-                        src={item.image || "/placeholder.png"}
-                        alt={item.title}
-                        className="w-10 h-10 rounded object-cover"
-                      />
-                    ))}
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold">
-                      ${order.totalPrice.toFixed(2)}
-                    </span>
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <h3 className="font-semibold">Order #{order._id.slice(-8).toUpperCase()}</h3>
+                      <p className="text-xs text-gray-500">
+                        {new Date(order.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
                     <select
                       value={order.orderStatus}
                       onChange={(e) =>
@@ -527,6 +558,56 @@ const Admin = () => {
                       <option value="delivered">Delivered</option>
                       <option value="cancelled">Cancelled</option>
                     </select>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 mb-3 text-sm">
+                    <div>
+                      <p className="text-gray-500 dark:text-gray-400 text-xs">Customer</p>
+                      <p className="font-medium">{order.customerName}</p>
+                      <p className="text-xs text-gray-500">{order.customerEmail}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 dark:text-gray-400 text-xs">Phone</p>
+                      <p className="font-medium">{order.customerPhone}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 dark:text-gray-400 text-xs">Shipping Address</p>
+                      <p className="font-medium text-xs">{order.shippingAddress.address}</p>
+                      <p className="text-xs">{order.shippingAddress.city}, {order.shippingAddress.country}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 dark:text-gray-400 text-xs">Estimated Delivery</p>
+                      <p className="font-medium">
+                        {order.estimatedDelivery ? new Date(order.estimatedDelivery).toLocaleDateString() : "N/A"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 dark:bg-dark-800 rounded-lg p-3 mb-3">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Items:</p>
+                    <div className="space-y-1">
+                      {order.products.map((item, i) => (
+                        <div key={i} className="flex items-center justify-between text-xs">
+                          <span>{item.title} x {item.quantity}</span>
+                          <span>${(item.price * item.quantity).toFixed(2)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold">Total: ${order.totalPrice.toFixed(2)}</span>
+                    <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                      order.orderStatus === "delivered"
+                        ? "bg-green-100 text-green-700"
+                        : order.orderStatus === "shipped"
+                        ? "bg-blue-100 text-blue-700"
+                        : order.orderStatus === "cancelled"
+                        ? "bg-red-100 text-red-700"
+                        : "bg-yellow-100 text-yellow-700"
+                    }`}>
+                      {order.orderStatus.charAt(0).toUpperCase() + order.orderStatus.slice(1)}
+                    </span>
                   </div>
                 </div>
               ))}

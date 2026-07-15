@@ -1,496 +1,634 @@
-You are an expert Senior Full Stack Software Engineer and UI/UX Designer.
+PROMPT
 
-Your task is to build a COMPLETE MVP (Minimum Viable Product) for a modern Clothing E-Commerce Website.
+You are a Senior Full-Stack Engineer with 15+ years of experience building scalable MERN applications.
 
-The project must be production-ready, scalable, responsive, and follow clean architecture.
+Your task is to refactor and improve my existing MERN e-commerce project into a production-quality application.
 
-=========================================
-TECH STACK
-=========================================
+IMPORTANT REQUIREMENT
 
-Frontend
-- React.js
-- Vite
-- Tailwind CSS
-- React Router
-- Axios
+This project is NOT Amazon, Daraz, or Shopify.
 
-Backend
-- Node.js
-- Express.js
+This is a simple business website where customers can browse products and place orders without creating an account.
 
-Database
-- MongoDB
-- Mongoose
+Authentication Rules
 
-Authentication
-- JWT Authentication
-- bcrypt password hashing
+Remove every customer authentication feature.
 
-Storage
-- Store product images locally inside uploads folder
-- Serve images through Express
+Customers should NEVER:
 
-=========================================
-PROJECT STRUCTURE
-=========================================
-
-client/
-
-server/
-
-README.md
-
-=========================================
-DATABASE MODELS
-=========================================
-
-User
-
-- _id
-- fullname
-- email
-- password
-- role
-- createdAt
-
-Product
-
-- _id
-- title
-- description
-- price
-- discount
-- category
-- gender
-- sizes
-- colors
-- stock
-- images
-- featured
-- rating
-- createdAt
-
-Cart
-
-- userId
-- products[]
-- total
-
-Order
-
-- userId
-- products[]
-- shippingAddress
-- totalPrice
-- paymentStatus
-- orderStatus
-- createdAt
-
-=========================================
-AUTHENTICATION
-=========================================
-
-Implement
-
-User Registration
-
-User Login
-
+Register
+Login
 Logout
+Reset Password
+Verify Email
+Have JWT tokens
+Have user roles
+Have user profiles
+Have dashboards
+Have authentication middleware
 
-JWT Authentication
+Customers should simply:
 
-Protected Routes
+Open website
+Browse products
+Add products to cart
+Checkout
+Place order
 
-Admin Routes
+No account required.
 
-Password Hashing
+Admin Authentication
 
-=========================================
-USER FEATURES
-=========================================
+Authentication must exist ONLY for the admin.
 
-Landing Page
+Navbar should contain:
 
-Hero Section
+Home
 
-Featured Products
+Products
 
 Categories
 
-New Arrivals
+About
 
-Trending Collection
+Contact
 
-About Brand
+Cart
 
-Newsletter
+Admin
 
-Footer
+When Admin is clicked:
 
-=========================================
-SHOP
-=========================================
+Open Admin Login page.
 
-Display Products
+Admin enters:
 
-Grid Layout
+Email
+Password
 
-Search
+After successful login:
 
-Filter
+Generate JWT.
 
-Category
+Protect every admin route.
 
-Gender
+Only admin can:
 
-Size
+Add Products
+Edit Products
+Delete Products
+Manage Categories
+View Orders
+Change Order Status
+Upload Images
+Access Dashboard
 
-Color
+No customer authentication should exist anywhere.
 
-Price Range
+Project Architecture
 
-Sorting
+Improve the entire architecture.
 
-Newest
+Follow proper MERN structure.
 
-Price Low to High
+Backend:
 
-Price High to Low
+config/
 
-Rating
+controllers/
 
-=========================================
-PRODUCT PAGE
-=========================================
+middleware/
 
-Large Images
+models/
 
-Image Gallery
+routes/
+
+services/
+
+utils/
+
+validators/
+
+uploads/
+
+Frontend:
+
+components/
+
+pages/
+
+hooks/
+
+services/
+
+context/
+
+utils/
+
+assets/
+
+layouts/
+
+admin/
+
+Remove Unnecessary Code
+
+Delete:
+
+Unused files
+
+Unused components
+
+Unused routes
+
+Unused imports
+
+Dead code
+
+Commented code
+
+Duplicate logic
+
+Duplicate API calls
+
+Duplicate CSS
+
+Unused images
+
+Unused dependencies
+
+Unused npm packages
+
+Unused environment variables
+
+Code Quality
+
+Apply clean code principles.
+
+Use meaningful variable names.
+
+Keep functions small.
+
+Remove repeated code.
+
+Create reusable utilities.
+
+Follow SOLID principles.
+
+Follow DRY principle.
+
+Improve readability.
+
+Add proper comments only where necessary.
+
+Backend Improvements
+
+Improve Express architecture.
+
+Improve controllers.
+
+Improve middleware.
+
+Improve validation.
+
+Improve routing.
+
+Use async error handling.
+
+Create centralized error handler.
+
+Create proper API response format.
+
+Validate every request.
+
+Return meaningful HTTP status codes.
+
+Remove unnecessary middleware.
+
+Optimize MongoDB queries.
+
+Use proper indexes.
+
+Prevent duplicate records.
+
+Improve file upload handling.
+
+Improve security.
+
+Frontend Improvements
+
+Refactor React components.
+
+Split large components.
+
+Create reusable UI components.
+
+Improve folder structure.
+
+Improve API service layer.
+
+Improve routing.
+
+Improve loading states.
+
+Improve error handling.
+
+Improve empty states.
+
+Improve responsive layout.
+
+Improve animations.
+
+Improve accessibility.
+
+Improve user experience.
+
+UI / UX Improvements
+
+Make UI modern.
+
+Maintain consistent spacing.
+
+Maintain consistent typography.
+
+Use consistent button styles.
+
+Improve forms.
+
+Improve cards.
+
+Improve tables.
+
+Improve admin dashboard.
+
+Improve mobile responsiveness.
+
+Improve tablet responsiveness.
+
+Improve desktop responsiveness.
+
+Improve product page.
+
+Improve checkout page.
+
+Improve cart page.
+
+Improve admin panel.
+
+Add proper success messages.
+
+Add proper error messages.
+
+Add skeleton loaders.
+
+Add loading spinners.
+
+Add empty data illustrations.
+
+Improve hover effects.
+
+Improve transitions.
+
+Maintain consistent color palette.
+
+Product Management
+
+Improve product CRUD.
+
+Support:
+
+Product Name
 
 Description
+
+Category
 
 Price
 
 Discount
 
-Available Sizes
+Stock
 
-Available Colors
+Images
 
-Quantity Selector
+Featured
 
-Add To Cart
+Status
 
-Buy Now
+Slug
 
-Related Products
+Search keywords
 
-=========================================
-CART
-=========================================
+Image preview before upload.
 
-Add Product
+Drag & Drop upload if possible.
 
-Remove Product
+Categories
 
-Increase Quantity
+CRUD categories.
 
-Decrease Quantity
+Prevent duplicate category names.
 
-Clear Cart
+Delete category safely.
 
-Cart Total
+Update products when category changes.
 
-Tax
+Orders
 
-Shipping
+Guest checkout only.
 
-Grand Total
+Collect:
 
-=========================================
-CHECKOUT
-=========================================
+Customer Name
 
-Shipping Form
+Phone
+
+Email (optional)
 
 Address
 
 City
 
-Country
+Notes
 
-Postal Code
+Products
 
-Phone Number
+Quantity
 
-Place Order
+Total
 
-Store Order in Database
+Admin should view all orders.
 
-=========================================
-USER DASHBOARD
-=========================================
+Admin should:
 
-Profile
+Approve
 
-Update Profile
+Pending
 
-My Orders
+Processing
 
-Order History
+Delivered
 
-Logout
+Cancelled
 
-=========================================
-ADMIN PANEL
-=========================================
+Cart
+
+Improve cart.
+
+Update quantity instantly.
+
+Remove item.
+
+Clear cart.
+
+Persist cart in Local Storage.
+
+Calculate totals correctly.
+
+Search
+
+Improve search.
+
+Search by:
+
+Name
+
+Category
+
+Description
+
+Price
+
+Support partial matching.
+
+Improve search performance.
+
+Filters
+
+Category filter.
+
+Price filter.
+
+Availability filter.
+
+Sort by:
+
+Newest
+
+Oldest
+
+Price Low to High
+
+Price High to Low
+
+Name A-Z
+
+Popularity
 
 Dashboard
 
-Statistics
+Improve admin dashboard.
+
+Show:
 
 Total Products
 
 Total Orders
 
-Total Users
-
 Revenue
 
-Product Management
+Pending Orders
 
-Create Product
+Recent Orders
 
-Update Product
+Top Products
 
-Delete Product
+Category Statistics
 
-Upload Images
+Charts
 
-Inventory Management
+Monthly Statistics
 
-Order Management
+Low Stock Products
 
-Update Order Status
+Security
 
-User Management
+Protect admin routes.
 
-=========================================
-REST API
-=========================================
+Secure JWT.
 
-POST /api/auth/register
+Hash passwords using bcrypt.
 
-POST /api/auth/login
+Validate uploads.
 
-GET /api/products
+Limit upload size.
 
-GET /api/products/:id
+Restrict file types.
 
-POST /api/products
+Prevent NoSQL injection.
 
-PUT /api/products/:id
+Prevent XSS.
 
-DELETE /api/products/:id
+Prevent CORS issues.
 
-POST /api/cart
+Improve Helmet configuration.
 
-GET /api/cart
+Rate limit admin login.
 
-DELETE /api/cart/:id
+Hide sensitive server errors.
 
-POST /api/orders
+Never expose stack traces.
 
-GET /api/orders
+Never expose .env variables.
 
-PUT /api/orders/:id
+Performance
 
-=========================================
-UI DESIGN
-=========================================
+Optimize React rendering.
 
-Modern Clothing Brand
+Memoize components where useful.
 
-Minimal Design
+Optimize MongoDB queries.
 
-Luxury Feel
+Lazy load pages.
 
-Rounded Cards
+Lazy load images.
 
-Smooth Animations
+Compress images.
 
-Responsive
+Reduce bundle size.
 
-Dark and Light Mode
+Remove unnecessary re-renders.
 
-Beautiful Typography
+Error Handling
 
-Large Product Images
+Create global error handler.
 
-Hover Effects
+Handle:
 
-Loading Skeletons
+404
 
-Toast Notifications
+500
 
-=========================================
-VALIDATION
-=========================================
+Validation errors
 
-Frontend Validation
+Database errors
 
-Backend Validation
+Network errors
 
-Email Validation
+Upload errors
 
-Password Validation
+Display friendly messages.
 
-Product Validation
+Environment
 
-=========================================
-ERROR HANDLING
-=========================================
+Clean .env.
 
-404 Page
+Separate:
 
-Unauthorized Page
+Development
 
-Server Errors
+Production
 
-Global Error Handler
+Never hardcode secrets.
 
-=========================================
-SECURITY
-=========================================
+API
 
-Helmet
+Make APIs RESTful.
 
-Rate Limiting
+Use consistent JSON responses.
 
-CORS
+Example:
 
-JWT
+success
 
-Hashed Passwords
+message
 
-Input Sanitization
+data
 
-=========================================
-PERFORMANCE
-=========================================
+error
 
-Pagination
+statusCode
 
-Lazy Loading Images
+Database
 
-Optimized Queries
+Review schemas.
 
-Caching Ready
+Improve relationships.
 
-=========================================
-SEED DATA
-=========================================
+Validate fields.
 
-Create 30 demo clothing products.
+Optimize indexes.
 
-Include
+Avoid redundant collections.
 
-Men
+Admin Panel
 
-Women
+Professional dashboard.
 
-Kids
+Sidebar navigation.
 
-Shirts
+Responsive.
 
-Hoodies
+Statistics.
 
-Jeans
+Product management.
 
-Shoes
+Category management.
 
-Jackets
+Order management.
 
-Accessories
+Settings.
 
-=========================================
-README
-=========================================
+Profile.
 
-Provide complete setup instructions.
+Logout.
 
-How to install
+Project Cleanup
 
-How to run frontend
+Delete node_modules from repository.
 
-How to run backend
+Delete build folders from repository.
 
-How to connect MongoDB
+Add proper .gitignore.
 
-Environment Variables
+Clean package.json.
 
-=========================================
-BONUS FEATURES
-=========================================
+Remove unused dependencies.
 
-Wishlist
+Organize scripts.
 
-Recently Viewed
+Production Readiness
 
-Featured Products
+Prepare project for deployment.
 
-Best Sellers
+Fix all warnings.
 
-Discount Badge
+Fix all ESLint issues.
 
-Coupon System
+Fix all console errors.
 
-Email Subscription
+Fix all build errors.
 
-Product Reviews
+Optimize production build.
 
-Ratings
+Improve maintainability.
 
-=========================================
-CODE QUALITY
-=========================================
+Improve scalability.
 
-Use reusable React components.
+Improve readability.
 
-Separate Controllers
+Follow industry best practices.
 
-Separate Routes
+Final Goal
 
-Separate Middleware
+Transform this project into a clean, professional, production-ready MERN e-commerce application where:
 
-Separate Models
+Customers can shop without creating an account.
+Only the administrator authenticates through a secure Admin Login page.
+The codebase is clean, modular, secure, maintainable, and scalable.
+The UI looks modern and professional.
+The application is optimized for performance and production deployment.
+All unnecessary code, duplicate logic, and unused dependencies are removed.
+Follow best practices throughout the entire frontend, backend, database, security, and deployment process.
 
-Separate Services
-
-Use async/await
-
-Follow MVC architecture
-
-Write clean comments.
-
-=========================================
-FINAL REQUIREMENT
-=========================================
-
-Generate the COMPLETE project.
-
-Do NOT leave placeholders.
-
-Create every required file.
-
-Write complete working code.
-
-The project should run immediately after:
-
-npm install
-
-npm run dev
-
-without requiring additional coding.
+Do not rewrite the project from scratch unless absolutely necessary. Refactor the existing code while preserving its functionality, improving its architecture, and documenting any significant changes made.

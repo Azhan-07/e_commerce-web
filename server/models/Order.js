@@ -22,6 +22,20 @@ const orderSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: false,
+    },
+    // Guest user info - for orders without authentication
+    customerName: {
+      type: String,
+      required: true,
+    },
+    customerEmail: {
+      type: String,
+      required: true,
+      lowercase: true,
+    },
+    customerPhone: {
+      type: String,
       required: true,
     },
     products: [orderItemSchema],
@@ -46,6 +60,12 @@ const orderSchema = new mongoose.Schema(
       type: String,
       enum: ["processing", "shipped", "delivered", "cancelled"],
       default: "processing",
+    },
+    estimatedDelivery: {
+      type: Date,
+    },
+    notes: {
+      type: String,
     },
   },
   { timestamps: true }
