@@ -13,6 +13,9 @@ const Product = require("./models/Product");
 
 dotenv.config();
 
+// Flag to prevent multiple server startups
+let serverStarted = false;
+
 const seedIfEmpty = async () => {
   try {
     const adminCount = await User.countDocuments({ role: "admin" });
@@ -51,8 +54,24 @@ const seedProducts = [
   { title: "Silk Camisole Top", description: "Delicate silk camisole with adjustable spaghetti straps.", price: 79.99, discount: 0, category: "shirts", gender: "women", sizes: ["XS", "S", "M", "L"], colors: ["Champagne", "Black"], stock: 28, images: ["https://images.unsplash.com/photo-1564257631407-4deb1f99d992?w=600"], featured: false },
 ];
 
-connectDB().then(() => {
-  seedIfEmpty().then(() => {
+const startServer = async () => {
+  try {
+    // Prevent multiple startups
+    if (serverStarted) {
+      console.log("Server already started, skipping initialization");
+      return;
+    }
+    serverStarted = true;
+
+    // Connect to database
+    await connectDB();
+    console.log("Database initialized");
+
+    // Seed database if empty
+    await seedIfEmpty();
+    console.log("Database seeding complete");
+
+    // Initialize Express app
     const app = express();
 
     // Security middleware
@@ -66,7 +85,7 @@ connectDB().then(() => {
       cors({
         origin: process.env.NODE_ENV === "production"
           ? process.env.CLIENT_URL || false
-          : ["http://localhost:5173", "http://localhost:3000"],
+          : ["http://localhost:5173", "http://localhost:3000", "http://localhost:3001"],
         credentials: true,
       })
     );
@@ -117,8 +136,18 @@ connectDB().then(() => {
 
     const PORT = process.env.PORT || 5000;
 
+    // Start server
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
-  });
-});
+  } catch (error) {
+    console.error("Server initialization error:", error.message);
+    console.error(error);
+    serverStarted = false; // Reset flag to allow retry
+    process.exit(1); // Exit process on fatal error
+  }
+};
+
+// Start the server
+startServer();
+
