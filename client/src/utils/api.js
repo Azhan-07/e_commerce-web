@@ -7,9 +7,9 @@ const API = axios.create({
 });
 
 API.interceptors.request.use((config) => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  if (user?.token) {
-    config.headers.Authorization = `Bearer ${user.token}`;
+  const admin = JSON.parse(localStorage.getItem("admin"));
+  if (admin?.token) {
+    config.headers.Authorization = `Bearer ${admin.token}`;
   }
   return config;
 });
@@ -18,11 +18,12 @@ API.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem("user");
-      window.location.href = "/login";
+      localStorage.removeItem("admin");
+      window.location.href = "/admin-login";
     }
     return Promise.reject(error);
   }
 );
 
 export default API;
+
