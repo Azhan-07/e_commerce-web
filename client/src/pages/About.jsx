@@ -1,16 +1,7 @@
-/**
- * About Page
- */
-
 import { HiOutlineCheckCircle, HiOutlineSparkles, HiOutlineHeart, HiOutlineLightBulb } from "react-icons/hi2";
 
 const About = () => {
   const features = [
-    {
-      icon: HiOutlineCheckCircle,
-      title: "Guest Checkout",
-      desc: "No account required — shop freely and checkout in seconds.",
-    },
     {
       icon: HiOutlineSparkles,
       title: "Quality Products",
@@ -22,9 +13,14 @@ const About = () => {
       desc: "Estimated delivery within 7 days to your doorstep.",
     },
     {
+      icon: HiOutlineCheckCircle,
+      title: "Order Tracking",
+      desc: "Track your orders in real-time from your account dashboard.",
+    },
+    {
       icon: HiOutlineLightBulb,
-      title: "Easy Tracking",
-      desc: "Track your order anytime using your email address.",
+      title: "Secure Shopping",
+      desc: "Industry-standard security to protect your data and transactions.",
     },
   ];
 
@@ -36,7 +32,6 @@ const About = () => {
 
   return (
     <div className="animate-fade-in">
-      {/* Hero */}
       <div className="relative py-20 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary-950 to-[#1a1512] dark:from-dark-900 dark:to-dark-950" />
         <div className="absolute top-10 right-10 w-64 h-64 bg-white/[0.03] rounded-full blur-3xl floating-shape" />
@@ -50,7 +45,6 @@ const About = () => {
       </div>
 
       <div className="container-custom py-16">
-        {/* Story section */}
         <div className="max-w-3xl mx-auto mb-20 animate-slide-up">
           <h2 className="font-display text-3xl font-bold mb-6 text-center">Our Story</h2>
           <p className="text-gray-600 dark:text-gray-400 leading-relaxed text-center text-lg">
@@ -58,7 +52,6 @@ const About = () => {
           </p>
         </div>
 
-        {/* Features */}
         <div className="max-w-4xl mx-auto mb-20">
           <h2 className="font-display text-3xl font-bold mb-10 text-center">Why Choose Us?</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -76,15 +69,13 @@ const About = () => {
           </div>
         </div>
 
-        {/* Mission */}
         <div className="max-w-3xl mx-auto mb-20 animate-slide-up">
           <h2 className="font-display text-3xl font-bold mb-6 text-center">Our Mission</h2>
           <p className="text-gray-600 dark:text-gray-400 leading-relaxed text-center text-lg">
-            To provide an accessible, enjoyable, and reliable platform where customers can discover and purchase high-quality fashion products without the need for account creation. We prioritize convenience and transparency in every transaction.
+            To provide an accessible, enjoyable, and reliable platform where customers can discover and purchase high-quality fashion products with complete security and transparency. We prioritize convenience and trust in every transaction.
           </p>
         </div>
 
-        {/* Values */}
         <div className="max-w-4xl mx-auto">
           <h2 className="font-display text-3xl font-bold mb-10 text-center">Our Values</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -97,9 +88,7 @@ const About = () => {
                 <div className={`h-2 bg-gradient-to-r ${v.gradient}`} />
                 <div className="p-6 bg-gray-50 dark:bg-dark-800 h-full">
                   <h3 className="font-semibold text-lg mb-3 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">{v.title}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                    {v.desc}
-                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{v.desc}</p>
                 </div>
               </div>
             ))}

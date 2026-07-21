@@ -1,18 +1,20 @@
-import { HiOutlineShoppingBag, HiOutlineCurrencyDollar, HiOutlineUsers, HiOutlineClipboardDocumentList } from "react-icons/hi2";
+import { HiOutlineShoppingBag, HiOutlineCurrencyDollar, HiOutlineUsers, HiOutlineClipboardDocumentList, HiOutlineArrowTrendingUp, HiOutlineClock } from "react-icons/hi2";
 
 const DashboardTab = ({ stats }) => {
   if (!stats) return null;
 
   const statCards = [
-    { label: "Products", value: stats.totalProducts, icon: HiOutlineShoppingBag, gradient: "from-blue-500 to-blue-600" },
-    { label: "Orders", value: stats.totalOrders, icon: HiOutlineClipboardDocumentList, gradient: "from-amber-500 to-orange-600" },
-    { label: "Users", value: stats.totalAdmins, icon: HiOutlineUsers, gradient: "from-purple-500 to-purple-600" },
-    { label: "Revenue", value: `$${stats.revenue.toFixed(2)}`, icon: HiOutlineCurrencyDollar, gradient: "from-green-500 to-emerald-600" },
+    { label: "Revenue", value: `$${stats.revenue.toFixed(2)}`, icon: HiOutlineCurrencyDollar, gradient: "from-emerald-500 to-green-600" },
+    { label: "Orders", value: stats.totalOrders, icon: HiOutlineClipboardDocumentList, gradient: "from-blue-500 to-blue-600" },
+    { label: "Customers", value: stats.totalUsers || 0, icon: HiOutlineUsers, gradient: "from-purple-500 to-purple-600" },
+    { label: "Products", value: stats.totalProducts, icon: HiOutlineShoppingBag, gradient: "from-amber-500 to-orange-600" },
+    { label: "Today's Orders", value: stats.todayOrders || 0, icon: HiOutlineArrowTrendingUp, gradient: "from-pink-500 to-rose-600" },
+    { label: "Pending", value: stats.pendingOrders, icon: HiOutlineClock, gradient: "from-yellow-500 to-amber-600" },
   ];
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {statCards.map((stat, i) => (
           <div
             key={stat.label}
@@ -41,11 +43,18 @@ const DashboardTab = ({ stats }) => {
               className="border rounded-lg p-3 dark:border-gray-800 flex items-center justify-between text-sm hover:border-primary-200 dark:hover:border-primary-900/30 transition-all duration-300 animate-slide-up"
               style={{ animationDelay: `${i * 50}ms` }}
             >
-              <span className="font-medium">{order.customerName}</span>
+              <div className="flex items-center space-x-3">
+                <span className="font-medium">{order.customerName}</span>
+                <span className={`text-xs px-2 py-0.5 rounded-full ${
+                  order.orderStatus === "delivered" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" :
+                  order.orderStatus === "cancelled" ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" :
+                  "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+                }`}>
+                  {order.orderStatus}
+                </span>
+              </div>
               <span className="font-semibold">${order.totalPrice.toFixed(2)}</span>
-              <span className="text-xs text-gray-500">
-                {new Date(order.createdAt).toLocaleDateString()}
-              </span>
+              <span className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</span>
             </div>
           ))}
         </div>

@@ -1,32 +1,20 @@
-/**
- * Admin Authentication Controller
- * Only admins can login through this endpoint
- */
-
 const { validationResult } = require("express-validator");
 const { adminLogin } = require("../services/authService");
 const { successResponse, errorResponse } = require("../utils/responses");
+const User = require("../models/User");
 
 exports.adminLogin = async (req, res, next) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json(
-        errorResponse(400, "Validation failed", errors.array())
-      );
+      return res.status(400).json(errorResponse(400, "Validation failed", errors.array()));
     }
 
     const { email, password } = req.body;
-
     const adminUser = await adminLogin(email, password);
-
-    return res.status(200).json(
-      successResponse(200, "Admin login successful", adminUser)
-    );
+    return res.status(200).json(successResponse(200, "Admin login successful", adminUser));
   } catch (error) {
-    return res.status(401).json(
-      errorResponse(401, error.message || "Authentication failed")
-    );
+    return res.status(401).json(errorResponse(401, error.message || "Authentication failed"));
   }
 };
 
@@ -47,11 +35,8 @@ exports.getAdminProfile = async (req, res, next) => {
 
 exports.getUsers = async (req, res, next) => {
   try {
-    const User = require("../models/User");
-    const users = await User.find({}).sort({ createdAt: -1 });
-    return res.status(200).json(
-      successResponse(200, "Users retrieved successfully", users)
-    );
+    const users = await User.find({}).sort({ createdAt: -1 }).lean();
+    return res.status(200).json(successResponse(200, "Users retrieved successfully", users));
   } catch (error) {
     next(error);
   }

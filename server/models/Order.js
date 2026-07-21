@@ -24,7 +24,6 @@ const orderSchema = new mongoose.Schema(
       ref: "User",
       required: false,
     },
-    // Guest user info - for orders without authentication
     customerName: {
       type: String,
       required: true,
@@ -53,22 +52,32 @@ const orderSchema = new mongoose.Schema(
     },
     paymentStatus: {
       type: String,
-      enum: ["pending", "paid", "failed"],
+      enum: ["pending", "paid", "failed", "refunded"],
       default: "pending",
     },
     orderStatus: {
       type: String,
-      enum: ["processing", "shipped", "delivered", "cancelled"],
+      enum: ["processing", "confirmed", "shipped", "out_for_delivery", "delivered", "cancelled"],
       default: "processing",
     },
     estimatedDelivery: {
       type: Date,
     },
+    deliveredAt: {
+      type: Date,
+    },
     notes: {
+      type: String,
+    },
+    trackingNumber: {
       type: String,
     },
   },
   { timestamps: true }
 );
+
+orderSchema.index({ customerEmail: 1 });
+orderSchema.index({ user: 1, createdAt: -1 });
+orderSchema.index({ orderStatus: 1 });
 
 module.exports = mongoose.model("Order", orderSchema);

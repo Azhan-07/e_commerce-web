@@ -19,6 +19,9 @@ const {
 const { protect, admin } = require("../middleware/auth");
 const upload = require("../middleware/upload");
 const { productValidator, handleValidationErrors } = require("../validators/validators");
+const reviewRoutes = require("./reviews");
+
+router.use("/:id/reviews", reviewRoutes);
 
 // Public routes - no authentication required
 router.get("/featured", getFeaturedProducts);

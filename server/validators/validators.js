@@ -1,8 +1,36 @@
-/**
- * Admin Authentication Validation
- */
-
 const { body, validationResult } = require("express-validator");
+
+const registerValidator = [
+  body("fullname")
+    .trim()
+    .notEmpty()
+    .withMessage("Full name is required")
+    .isLength({ min: 2, max: 100 })
+    .withMessage("Name must be 2-100 characters"),
+  body("email")
+    .isEmail()
+    .withMessage("Please provide a valid email")
+    .normalizeEmail(),
+  body("password")
+    .isLength({ min: 6 })
+    .withMessage("Password must be at least 6 characters")
+    .matches(/\d/)
+    .withMessage("Password must contain at least one number"),
+  body("phone")
+    .optional()
+    .matches(/^[\d+\-\s()]+$/)
+    .withMessage("Invalid phone number format"),
+];
+
+const loginValidator = [
+  body("email")
+    .isEmail()
+    .withMessage("Please provide a valid email")
+    .normalizeEmail(),
+  body("password")
+    .notEmpty()
+    .withMessage("Password is required"),
+];
 
 const adminLoginValidator = [
   body("email")
@@ -12,6 +40,22 @@ const adminLoginValidator = [
   body("password")
     .notEmpty()
     .withMessage("Password is required")
+    .isLength({ min: 6 })
+    .withMessage("Password must be at least 6 characters"),
+];
+
+const createAdminValidator = [
+  body("fullname")
+    .trim()
+    .notEmpty()
+    .withMessage("Full name is required")
+    .isLength({ min: 2, max: 100 })
+    .withMessage("Name must be 2-100 characters"),
+  body("email")
+    .isEmail()
+    .withMessage("Please provide a valid email")
+    .normalizeEmail(),
+  body("password")
     .isLength({ min: 6 })
     .withMessage("Password must be at least 6 characters"),
 ];
@@ -88,6 +132,17 @@ const orderValidator = [
     .withMessage("Country is required"),
 ];
 
+const reviewValidator = [
+  body("rating")
+    .isInt({ min: 1, max: 5 })
+    .withMessage("Rating must be between 1 and 5"),
+  body("comment")
+    .optional()
+    .trim()
+    .isLength({ max: 1000 })
+    .withMessage("Comment cannot exceed 1000 characters"),
+];
+
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -95,7 +150,7 @@ const handleValidationErrors = (req, res, next) => {
       success: false,
       message: "Validation failed",
       errors: errors.array().map((err) => ({
-        field: err.param,
+        field: err.path,
         message: err.msg,
       })),
     });
@@ -104,8 +159,12 @@ const handleValidationErrors = (req, res, next) => {
 };
 
 module.exports = {
+  registerValidator,
+  loginValidator,
   adminLoginValidator,
+  createAdminValidator,
   productValidator,
   orderValidator,
+  reviewValidator,
   handleValidationErrors,
 };

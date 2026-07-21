@@ -1,8 +1,5 @@
-/**
- * Order Service
- */
-
 const Order = require("../models/Order");
+const Product = require("../models/Product");
 
 const createGuestOrder = async (orderData) => {
   const order = new Order({
@@ -22,7 +19,32 @@ const createGuestOrder = async (orderData) => {
     totalPrice: orderData.totalPrice,
     orderStatus: "processing",
     paymentStatus: "pending",
-    estimatedDelivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+    estimatedDelivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  });
+
+  return await order.save();
+};
+
+const createAuthenticatedOrder = async (userId, orderData) => {
+  const order = new Order({
+    user: userId,
+    customerName: orderData.customerName,
+    customerEmail: orderData.customerEmail,
+    customerPhone: orderData.customerPhone,
+    products: orderData.products.map((item) => ({
+      product: item.product,
+      title: item.title,
+      image: item.image,
+      price: item.price,
+      size: item.size,
+      color: item.color,
+      quantity: item.quantity,
+    })),
+    shippingAddress: orderData.shippingAddress,
+    totalPrice: orderData.totalPrice,
+    orderStatus: "processing",
+    paymentStatus: "pending",
+    estimatedDelivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   });
 
   return await order.save();
@@ -57,15 +79,29 @@ const getAllOrders = async (page = 1, limit = 20) => {
   };
 };
 
-const updateOrderStatus = async (orderId, orderStatus, paymentStatus) => {
+const updateOrderStatus = async (orderId, orderStatus, paymentStatus, trackingNumber) => {
   const order = await Order.findById(orderId);
   if (!order) throw new Error("Order not found");
 
+  const wasDelivered = order.orderStatus === "delivered";
+
   if (orderStatus) order.orderStatus = orderStatus;
   if (paymentStatus) order.paymentStatus = paymentStatus;
+  if (trackingNumber) order.trackingNumber = trackingNumber;
 
-  if (orderStatus === "delivered" && !paymentStatus) {
-    order.paymentStatus = "paid";
+  if (orderStatus === "delivered") {
+    order.deliveredAt = new Date();
+    if (!paymentStatus) order.paymentStatus = "paid";
+
+    if (!wasDelivered) {
+      const bulkOps = order.products.map((item) => ({
+        updateOne: {
+          filter: { _id: item.product, stock: { $gte: item.quantity } },
+          update: { $inc: { stock: -item.quantity } },
+        },
+      }));
+      await Product.bulkWrite(bulkOps);
+    }
   }
 
   return await order.save();
@@ -77,14 +113,15 @@ const getDashboardStats = async () => {
 
   const totalOrders = await Order.countDocuments();
   const totalProducts = await Product.countDocuments();
-  const totalAdmins = await User.countDocuments();
+  const totalUsers = await User.countDocuments({ role: "customer" });
+  const totalAdmins = await User.countDocuments({ role: "admin" });
 
   const revenue = await Order.aggregate([
     { $match: { paymentStatus: "paid" } },
     { $group: { _id: null, total: { $sum: "$totalPrice" } } },
   ]);
 
-  const pendingOrders = await Order.countDocuments({ orderStatus: "pending" });
+  const pendingOrders = await Order.countDocuments({ orderStatus: "processing" });
 
   const recentOrders = await Order.find({})
     .sort({ createdAt: -1 })
@@ -119,20 +156,32 @@ const getDashboardStats = async () => {
     { $limit: 5 },
   ]);
 
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const todayOrders = await Order.countDocuments({ createdAt: { $gte: todayStart } });
+  const todayRevenue = await Order.aggregate([
+    { $match: { createdAt: { $gte: todayStart }, paymentStatus: "paid" } },
+    { $group: { _id: null, total: { $sum: "$totalPrice" } } },
+  ]);
+
   return {
     totalOrders,
     totalProducts,
+    totalUsers,
     totalAdmins,
     revenue: revenue[0]?.total || 0,
     pendingOrders,
     recentOrders,
     monthlySales,
     topProducts,
+    todayOrders,
+    todayRevenue: todayRevenue[0]?.total || 0,
   };
 };
 
 module.exports = {
   createGuestOrder,
+  createAuthenticatedOrder,
   getOrdersByEmail,
   getOrderById,
   getAllOrders,

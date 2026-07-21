@@ -1,27 +1,27 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useUser } from "../context/UserContext";
 import toast from "react-hot-toast";
+import { HiOutlineEnvelope, HiOutlineLockClosed } from "react-icons/hi2";
 
-const AdminLogin = () => {
+const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { adminLogin } = useAuth();
+  const { login } = useUser();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email.trim()) return toast.error("Email is required");
-    if (!/^\S+@\S+\.\S+$/.test(email)) return toast.error("Please provide a valid email");
+    if (!/^\S+@\S+\.\S+$/.test(email)) return toast.error("Valid email is required");
     if (!password) return toast.error("Password is required");
 
     setLoading(true);
     try {
-      await adminLogin(email, password);
-      toast.success("Admin login successful!");
-      navigate("/admin");
+      await login(email, password);
+      toast.success("Welcome back!");
+      navigate("/");
     } catch (error) {
       toast.error(error.response?.data?.message || "Login failed");
     } finally {
@@ -40,21 +40,26 @@ const AdminLogin = () => {
           <Link to="/" className="font-display text-4xl font-bold hover:scale-105 inline-block transition-transform duration-300">
             <span className="text-gradient">KING</span>
           </Link>
-          <p className="text-gray-500 dark:text-gray-400 mt-3 text-sm tracking-wide">Admin Access Portal</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-3 text-sm tracking-wide">Sign in to your account</p>
         </div>
 
         <form onSubmit={handleSubmit} className="glass rounded-2xl p-8 hover:shadow-2xl transition-all duration-500">
-          <h2 className="font-semibold text-xl mb-6">Admin Sign In</h2>
+          <h2 className="font-semibold text-xl mb-6">Welcome Back</h2>
 
           <div className="space-y-4">
             <div className="animate-slide-up" style={{ animationDelay: "50ms" }}>
               <label className="text-sm font-medium mb-2 block">Email</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input-field input-glow" placeholder="admin@king.com" required />
+              <div className="relative">
+                <HiOutlineEnvelope className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input-field pl-10" placeholder="you@example.com" required />
+              </div>
             </div>
+
             <div className="animate-slide-up" style={{ animationDelay: "100ms" }}>
               <label className="text-sm font-medium mb-2 block">Password</label>
               <div className="relative">
-                <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} className="input-field input-glow" placeholder="Enter your password" required />
+                <HiOutlineLockClosed className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} className="input-field pl-10" placeholder="Enter your password" required />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600">
                   {showPassword ? "Hide" : "Show"}
                 </button>
@@ -74,17 +79,23 @@ const AdminLogin = () => {
           </button>
 
           <div className="flex items-center justify-between mt-4 text-sm">
-            <Link to="/login" className="text-primary-600 dark:text-primary-400 font-medium hover:underline">
-              Customer Login
+            <Link to="/admin-login" className="text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+              Admin Login
             </Link>
-            <Link to="/" className="text-gray-500 dark:text-gray-400 hover:underline">
-              Back to home
+            <Link to="/register" className="text-primary-600 dark:text-primary-400 font-medium hover:underline">
+              Create Account
             </Link>
           </div>
+
+          <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
+            <Link to="/" className="text-primary-600 dark:text-primary-400 font-medium hover:underline">
+              Back to home
+            </Link>
+          </p>
         </form>
       </div>
     </div>
   );
 };
 
-export default AdminLogin;
+export default Login;

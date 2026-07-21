@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import API from "../utils/api";
 import { useCart } from "../context/CartContext";
+import { useUser } from "../context/UserContext";
 import ProductCard from "../components/ProductCard";
 import LoadingSkeleton from "../components/LoadingSkeleton";
 import toast from "react-hot-toast";
@@ -10,6 +11,7 @@ const ProductPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { user } = useUser();
   const [product, setProduct] = useState(null);
   const [related, setRelated] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,6 +20,12 @@ const ProductPage = () => {
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [reviews, setReviews] = useState([]);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [canReview, setCanReview] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -32,6 +40,14 @@ const ProductPage = () => {
         setRelated(
           (relatedRes.data.data.products || []).filter((p) => p._id !== data.data._id).slice(0, 4)
         );
+
+        const reviewsRes = await API.get(`/products/${id}/reviews`);
+        setReviews(reviewsRes.data.data.reviews || []);
+
+        if (user) {
+          const eligibility = await API.get(`/products/${id}/reviews/can-review`);
+          setCanReview(eligibility.data.data.canReview);
+        }
       } catch (error) {
         console.error(error);
       } finally {
@@ -39,7 +55,33 @@ const ProductPage = () => {
       }
     };
     fetchProduct();
-  }, [id]);
+  }, [id, user]);
+
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    setSubmittingReview(true);
+    try {
+      await API.post(`/products/${id}/reviews`, {
+        rating: reviewRating,
+        comment: reviewComment,
+      });
+      toast.success("Review submitted!");
+      setShowReviewForm(false);
+      setReviewComment("");
+      setReviewRating(5);
+      setCanReview(false);
+
+      const reviewsRes = await API.get(`/products/${id}/reviews`);
+      setReviews(reviewsRes.data.data.reviews || []);
+
+      const { data } = await API.get(`/products/${id}`);
+      setProduct(data.data);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to submit review");
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
 
   const handleAddToCart = async () => {
     if (product.sizes.length > 0 && !selectedSize) {
@@ -148,18 +190,16 @@ const ProductPage = () => {
           </p>
           <h1 className="font-display text-3xl font-bold mb-4">{product.title}</h1>
 
-          {product.rating > 0 && (
-            <div className="flex items-center mb-4">
-              <div className="flex text-yellow-400 text-sm">
-                {[...Array(5)].map((_, i) => (
-                  <span key={i}>{i < Math.round(product.rating) ? "★" : "☆"}</span>
-                ))}
-              </div>
-              <span className="text-sm text-gray-500 ml-2">
-                ({product.numReviews} reviews)
-              </span>
+          <div className="flex items-center mb-4">
+            <div className="flex text-yellow-400 text-sm">
+              {[...Array(5)].map((_, i) => (
+                <span key={i}>{i < Math.round(product.rating) ? "★" : "☆"}</span>
+              ))}
             </div>
-          )}
+            <span className="text-sm text-gray-500 ml-2">
+              ({product.numReviews} {product.numReviews === 1 ? "review" : "reviews"})
+            </span>
+          </div>
 
           <div className="flex items-center space-x-3 mb-6">
             <span className="text-2xl font-bold">${discountedPrice.toFixed(2)}</span>
@@ -290,6 +330,118 @@ const ProductPage = () => {
           </div>
         </section>
       )}
+
+      {/* Reviews Section */}
+      <section className="mt-20">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="font-display text-2xl font-bold">
+            Customer Reviews ({reviews.length})
+          </h2>
+          {user && canReview && !showReviewForm && (
+            <button
+              onClick={() => setShowReviewForm(true)}
+              className="btn-primary btn-ripple text-sm"
+            >
+              Write a Review
+            </button>
+          )}
+          {!user && (
+            <Link to="/login" className="text-sm text-primary-600 dark:text-primary-400 hover:underline">
+              Login to review
+            </Link>
+          )}
+        </div>
+
+        {showReviewForm && (
+          <form onSubmit={handleSubmitReview} className="border rounded-2xl p-6 dark:border-gray-800 mb-8 animate-slide-up">
+            <h3 className="font-semibold mb-4">Your Review</h3>
+            <div className="mb-4">
+              <label className="text-sm font-medium mb-2 block">Rating</label>
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setReviewRating(star)}
+                    className={`text-2xl transition-colors ${
+                      star <= reviewRating ? "text-yellow-400" : "text-gray-300 dark:text-gray-600"
+                    }`}
+                  >
+                    ★
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="mb-4">
+              <label className="text-sm font-medium mb-2 block">Comment (optional)</label>
+              <textarea
+                value={reviewComment}
+                onChange={(e) => setReviewComment(e.target.value)}
+                rows={3}
+                maxLength={1000}
+                className="input-field w-full"
+                placeholder="Share your experience with this product..."
+              />
+            </div>
+            <div className="flex gap-3">
+              <button
+                type="submit"
+                disabled={submittingReview}
+                className="btn-primary btn-ripple text-sm"
+              >
+                {submittingReview ? "Submitting..." : "Submit Review"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowReviewForm(false)}
+                className="btn-secondary text-sm"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        )}
+
+        {reviews.length === 0 ? (
+          <div className="text-center py-12 border rounded-2xl dark:border-gray-800">
+            <p className="text-gray-500 dark:text-gray-400">No reviews yet. Be the first to review this product!</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {reviews.map((review, i) => (
+              <div
+                key={review._id}
+                className="border rounded-2xl p-6 dark:border-gray-800 animate-slide-up"
+                style={{ animationDelay: `${i * 50}ms` }}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-sm font-medium text-primary-700 dark:text-primary-400">
+                      {(review.user?.fullname || "A").charAt(0).toUpperCase()}
+                    </div>
+                    <span className="font-medium text-sm">{review.user?.fullname || "Anonymous"}</span>
+                  </div>
+                  <span className="text-xs text-gray-400">
+                    {new Date(review.createdAt).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </span>
+                </div>
+                <div className="flex text-yellow-400 text-sm mb-2">
+                  {[...Array(5)].map((_, j) => (
+                    <span key={j}>{j < review.rating ? "★" : "☆"}</span>
+                  ))}
+                </div>
+                {review.comment && (
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{review.comment}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 };

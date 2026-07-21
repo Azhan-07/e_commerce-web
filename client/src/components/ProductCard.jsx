@@ -93,18 +93,16 @@ const ProductCard = ({ product }) => {
             </span>
           )}
         </div>
-        {product.rating > 0 && (
-          <div className="flex items-center mt-2">
-            <div className="flex text-yellow-400 text-xs">
-              {[...Array(5)].map((_, i) => (
-                <span key={i}>{i < Math.round(product.rating) ? "★" : "☆"}</span>
-              ))}
-            </div>
-            <span className="text-[11px] text-gray-400 ml-1">
-              ({product.numReviews})
-            </span>
+        <div className="flex items-center mt-2">
+          <div className="flex text-yellow-400 text-xs">
+            {[...Array(5)].map((_, i) => (
+              <span key={i}>{i < Math.round(product.rating) ? "★" : "☆"}</span>
+            ))}
           </div>
-        )}
+          <span className="text-[11px] text-gray-400 ml-1">
+            ({product.numReviews})
+          </span>
+        </div>
       </div>
     </Link>
   );

@@ -7,6 +7,7 @@ import ProductsTab from "../components/admin/ProductsTab";
 import ProductFormTab from "../components/admin/ProductFormTab";
 import OrdersTab from "../components/admin/OrdersTab";
 import UsersTab from "../components/admin/UsersTab";
+import CreateAdminTab from "../components/admin/CreateAdminTab";
 
 const defaultForm = {
   title: "",
@@ -39,7 +40,7 @@ const Admin = () => {
   useEffect(() => {
     if (tab === "products") fetchProducts();
     if (tab === "orders") fetchOrders();
-    if (tab === "users") fetchUsers();
+    if (tab === "users" || tab === "create-admin") fetchUsers();
   }, [tab]);
 
   const fetchDashboard = async () => {
@@ -163,24 +164,42 @@ const Admin = () => {
     }
   };
 
+  const handleDeleteUser = async (userId) => {
+    if (!confirm("Delete this user? This action cannot be undone.")) return;
+    try {
+      await API.delete(`/user-auth/admin/users/${userId}`);
+      toast.success("User deleted");
+      fetchUsers();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to delete user");
+    }
+  };
+
+  const handleCreateAdmin = async (formData) => {
+    try {
+      await API.post("/user-auth/admin/create-admin", formData);
+      toast.success("Admin created successfully!");
+      fetchUsers();
+      setTab("users");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to create admin");
+    }
+  };
+
   const tabs = [
     { id: "dashboard", name: "Dashboard" },
     { id: "products", name: "Products" },
     { id: "create", name: editingId ? "Edit Product" : "Add Product" },
     { id: "orders", name: "Orders" },
     { id: "users", name: "Users" },
+    { id: "create-admin", name: "Add Admin" },
   ];
 
   return (
     <div className="container-custom py-8 animate-fade-in">
-      <div className="flex items-center justify-between mb-8 page-enter">
+      <div className="flex items-center justify-between mb-8">
         <h1 className="font-display text-3xl font-bold">Admin Panel</h1>
-        <Link
-          to="/"
-          className="text-sm text-primary-600 dark:text-primary-400 hover:underline"
-        >
-          Back to Store
-        </Link>
+        <Link to="/" className="text-sm text-primary-600 dark:text-primary-400 hover:underline">Back to Store</Link>
       </div>
 
       <div className="flex flex-col md:flex-row gap-8">
@@ -208,29 +227,14 @@ const Admin = () => {
         <main className="flex-1 min-w-0">
           {tab === "dashboard" && <DashboardTab stats={stats} />}
           {tab === "products" && (
-            <ProductsTab
-              products={products}
-              onEdit={handleEditProduct}
-              onDelete={handleDeleteProduct}
-              onStockUpdate={handleStockUpdate}
-              onAddNew={() => setTab("create")}
-            />
+            <ProductsTab products={products} onEdit={handleEditProduct} onDelete={handleDeleteProduct} onStockUpdate={handleStockUpdate} onAddNew={() => setTab("create")} />
           )}
           {tab === "create" && (
-            <ProductFormTab
-              productForm={productForm}
-              setProductForm={setProductForm}
-              editingId={editingId}
-              images={images}
-              setImages={setImages}
-              onSubmit={handleProductSubmit}
-              onCancel={() => { resetForm(); setTab("products"); }}
-            />
+            <ProductFormTab productForm={productForm} setProductForm={setProductForm} editingId={editingId} images={images} setImages={setImages} onSubmit={handleProductSubmit} onCancel={() => { resetForm(); setTab("products"); }} />
           )}
-          {tab === "orders" && (
-            <OrdersTab orders={orders} onUpdateStatus={handleOrderStatus} />
-          )}
-          {tab === "users" && <UsersTab users={users} />}
+          {tab === "orders" && <OrdersTab orders={orders} onUpdateStatus={handleOrderStatus} />}
+          {tab === "users" && <UsersTab users={users} onDeleteUser={handleDeleteUser} onAddAdmin={() => setTab("create-admin")} />}
+          {tab === "create-admin" && <CreateAdminTab onSubmit={handleCreateAdmin} onCancel={() => setTab("users")} />}
         </main>
       </div>
     </div>
